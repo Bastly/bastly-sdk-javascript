@@ -8,13 +8,17 @@ module.exports = {
       baseDir: dest
     }
   },
+  markup: {
+    src: src + "/htdocs/**",
+    dest: dest
+  },
   browserify: {
     bundleConfigs: [{
-      entries: src + '/javascript/browser.js',
+      entries: src + '/javascript/page.js',
       dest: dest,
       outputName: 'browser.js',
       // list of externally available modules to exclude from the bundle
-      external: ['underscore']
+      external: ['lodash']
     }]
   },
   production: {
