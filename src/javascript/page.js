@@ -9,7 +9,7 @@ bastly.socket = socket;
 
 bastly.getWorker = function getWorker(id, callback){
     console.log('hola!');
-    request('http://192.168.0.112:8080/api/requestChaski?channel=' + channelId, function (error, response, body) {
+    request('http://192.168.0.112:8080/api/requestChaski?channel=' + channelId + '&chaskiType=SOCKETIO', function (error, response, body) {
         console.log('holaGato!');
         console.log(response);
         console.log(body);
@@ -23,7 +23,7 @@ bastly.getWorker = function getWorker(id, callback){
 bastly.send = function send(channel, msg, callback){
     request.post({
             url:'http://192.168.0.112:8080/api/publishMessage', 
-            form: {channel: channelId, message:msg }
+            form: {channel: channelId, data:JSON.stringify(msg) }
         }, 
         function(err,httpResponse,body){ 
             if(callback){
@@ -44,22 +44,24 @@ window.bastly = bastly;
 bastly.getWorker('holaId', function(response){
     console.log('worker got');
     console.log(response);
-    bastly.socket = io('http://' + response);
-    bastly.socket.on('message', function(msg){
+    bastly.socket = socket('http://' + response+':3000');
+    bastly.socket.on(channelId, function(msg){
         console.log('msg got from chaski-socketio!?!');
-        conssole.log(msg);     
+        console.log(msg);     
     });
 }); 
 
-bastly.send(channelId, 'este es el sended message', function(err, httpResponse, body){
-    console.log('message send ACK got!');
-});
-bastly.send(channelId, 'este es el sended message', function(err, httpResponse, body){
-    console.log('message send ACK got!');
-});
-bastly.send(channelId, 'este es el sended message', function(err, httpResponse, body){
-    console.log('message send ACK got!');
-});
+
+var simpleMessageSend = function(){
+    bastly.send(channelId, {msg:'este es el sended message'}, function(err, httpResponse, body){
+        if(err){
+            console.log('error, no message ACK got');
+        }else{
+            console.log('message send ACK got!');
+        }
+    });
+};
+setInterval(simpleMessageSend, 3000);
 
 module.exports = function(opts){
 

@@ -1,3 +1,3 @@
 var gulp = require('gulp');
 
-gulp.task('default', ['karma', 'markup', 'watch']);
+gulp.task('default', ['markup', 'watch']);
