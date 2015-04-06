@@ -14,9 +14,9 @@ module.exports = {
   },
   browserify: {
     bundleConfigs: [{
-      entries: src + '/javascript/page.js',
+      entries: src + '/javascript/bastly.js',
       dest: dest,
-      outputName: 'browser.js',
+      outputName: 'bastly.js',
       // list of externally available modules to exclude from the bundle
       external: ['lodash']
     }]
