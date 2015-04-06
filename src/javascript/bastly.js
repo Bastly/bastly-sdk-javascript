@@ -78,7 +78,6 @@ var pingControl = function(worker){
 };
 
 bastly.on = function on(id, callback){
-    //TODO find the worker before changing it
     bastly.callbacks[id] = callback;
 };
 
