@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-var bastly = require('../page.js')();
+var bastly = require('../bastly.js')();
 
 describe('Sanity check', function() {
     it('tests work', function (done) {

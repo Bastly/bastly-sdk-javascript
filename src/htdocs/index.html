@@ -8,6 +8,24 @@
 
   <body>
     <h1>Gulp All The Things!</h1>
-    <script src="browser.js"></script>
+    <script src="bastly.js"></script>
+    <script>
+        var myId = "paginaWeb";
+        var bastly = bastly(myId, "nonoAhoraNo", function(data){
+            console.log('gotd', Date.now());
+            //console.log("got a message on myId:", myId, data);
+        });
+        var simpleMessageSend = function(){
+            bastly.send(myId, {msg:'este es el sended message'}, function(err, httpResponse, body){
+                if(err){
+                    console.log('error, no message ACK got');
+                }else{
+                    console.log('message send ACK got!');
+                    console.log(Date.now());
+                }
+            });
+        };
+        setInterval(simpleMessageSend, 3000);
+    </script>
   </body>
 </html>
