@@ -93,12 +93,15 @@ bastly.subscribe = function(channel, channelCallback){
     }); 
 };
 
-window.bastly = module.exports = function(from, apiKey, callback){
+window.bastly = module.exports = function(from, apiKey, callback, ipAtahualpa){
 
     //TODO missing checks
     bastly.from = from;
     bastly.apiKey = apiKey;
     bastly.callbacks[bastly.from] = callback;
+    if(typeof ipAtahualpa !== "undefined"){
+        IP_ATAHUALPA = ipAtahualpa;
+    }
 
     bastly.subscribe(bastly.from, callback);
 
