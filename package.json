@@ -52,6 +52,7 @@
     "watchify": "^2.4.0"
   },
   "dependencies": {
+    "bastly_constants": "0.0.6",
     "lodash": "*",
     "request": "^2.53.0",
     "socket.io-client": "^1.3.5"
