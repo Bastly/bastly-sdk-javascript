@@ -27,7 +27,7 @@ var getWorker = function getWorker(channel, callback){
         bastly.workers[workerIp].channels.push({channel:channel});
         bastly.workers[workerIp].ip = workerIp;
         // forceNew is required because a connect/disconnect/connect cycle does not work without it
-        bastly.workers[workerIp].socket = io.connect('http://' + msg.message.ip + ':3000', {'forceNew': true });
+        bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + msg.message.ip + ':3000', {'forceNew': true });
         bastly.workers[workerIp].pingInterval =  bastly.workers[workerIp].pingInterval || pingControl(bastly.workers[workerIp]);
         callback(bastly.workers[workerIp]);
     });
