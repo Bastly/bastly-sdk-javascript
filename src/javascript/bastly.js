@@ -1,26 +1,17 @@
 console.log('loaded');
 var _ = require('lodash');
-var request = require('request');
-var constants = require('bastly_constants');
 var bastly = {};
-var io = require('socket.io-client');
-var IP_ATAHUALPA = 'atahualpa.bastly.com';
+var bastlySocketio = require('./bastlySocketio')();
 bastly.workers = {};
 bastly.callbacks = {};
 
+//SHARED
 var closeWorker = function(worker){
     console.log('closing Worker', worker.ip);
-    worker.socket.disconnect();
+    bastlySocketio.closeConnection(worker);
     bastly.workers[worker.ip] = {};
     clearInterval(worker.pingInterval);
 };
-
-
-//Interfase
-var createConnection = function(workerIp){
-    // forceNew is required because a connect/disconnect/connect cycle does not work without it
-    bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + workerIp + ':3000', {'forceNew': true });
-}
 
 //SHARED
 var registerWorker = function(workerIp, channel, callback){
@@ -29,39 +20,26 @@ var registerWorker = function(workerIp, channel, callback){
     bastly.workers[workerIp].channels = bastly.workers[workerIp].channels || [];
     bastly.workers[workerIp].channels.push({channel:channel});
     bastly.workers[workerIp].ip = workerIp;
-    createConnection(workerIp);
+    bastlySocketio.createConnection(workerIp);
     bastly.workers[workerIp].pingInterval =  bastly.workers[workerIp].pingInterval || pingControl(bastly.workers[workerIp]);
+    bastly.callbacks[channel] = callback;
     callback(bastly.workers[workerIp]);
 }
 
 
-
-//interface
-var getWorker = function getWorker(channel, callback){
-    console.log('getting worker!');
-    request('http://' + IP_ATAHUALPA + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO, function (error, response, body) {
-        console.log('Worker got!', body);
-        var msg = JSON.parse(body);
-        var workerIp = msg.message.ip;
-        registerWorker(workerIp, channel, callback);
+//SHARED
+var replaceWorker = function(worker){
+    _.each(worker.channels, function(channel){
+        getWorker(channel, function(newWorker){
+            console.log('worker got');
+            //recovering previous channel callbacks
+            bastlySocketio.workerListenToChannelAndAssociateCallback(newWorker, channel);
+        }); 
     });
 };
 
-bastly.send = function send(to, msg, callback){
-    console.log('send', Date.now());
-    request.post({
-            url:'http://' + IP_ATAHUALPA + ':8080/api/publishMessage', 
-            form: {to: to, from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) }
-        }, 
-        function(err,httpResponse,body){ 
-            //ACK callback 
-            if(callback){
-                callback(err, httpResponse, body);
-            } 
-        }
-    );
-};
 
+//SHARED
 var isAlive = function(worker){
     //if alive, set isAlive to false, pings make it alive again
     if(worker.isAlive === true){
@@ -69,52 +47,48 @@ var isAlive = function(worker){
         worker.isAlive = false;
     } else {
         console.log('worker:', worker.ip, "is dead... RIP");
-        closeWorker(worker);
-        //need to replace the worker
-        _.each(worker.channels, function(channel){
-            getWorker(channel, function(newWorker){
-                console.log('worker got');
-                //recovering previous channel callbacks
-                newWorker.socket.on(channel, function(data){
-                    bastly.callbacks[channel](data);
-                });
-            }); 
-        });
+        bastlySocketio.closeWorker(worker);
+        bastlySocketio.replaceWorker(worker);
+        //need to replace all the worker channels
     }
 };
 
+//SHARED 
 var pingControl = function(worker){
-    worker.socket.on('ping', function(){
-        console.log('gotPing, worker', worker.ip, 'LIVE LONG AND PROSPER');
-        worker.isAlive = true;
-    }); 
+    bastlySocketio.listenToPing(worker);
     return setInterval(function() { isAlive(worker); }, 5000);
 };
 
+
+//SHARED
 // for assigning new callbacks
 bastly.on = function on(id, callback){
     bastly.callbacks[id] = callback;
 };
 
+
+//SHARED 
 bastly.subscribe = function(channel, channelCallback){
-    getWorker(channel, function(worker){
+    bastlySocketio.getWorker(channel, function(worker){
         console.log('worker got');
         //registers callbacks to be able to change them afterwards
-        bastly.callbacks[channel] = channelCallback;
-        worker.socket.on(channel, function(data){
-            bastly.callbacks[channel](data);
-        });
-    }); 
+        registerWorker(worker, channel, channelCallback);
+        bastlySocketio.workerListenToChannelAndAssociateCallback(worker, channel);
+     }); 
 };
 
-window.bastly = module.exports = function(from, apiKey, callback, ipAtahualpa){
+//SHARED
+bastly.send = bastlySocketio.send;
+
+//SHARED
+window.bastly = module.exports = function(from, apiKey, callback, ipConectorRest){
 
     //TODO missing checks
     bastly.from = from;
     bastly.apiKey = apiKey;
     bastly.callbacks[bastly.from] = callback;
-    if(typeof ipAtahualpa !== "undefined"){
-        IP_ATAHUALPA = ipAtahualpa;
+    if(typeof ipConectorRest !== "undefined"){
+        IP_CONNECTOR_REST = ipConectorRest;
     }
 
     bastly.subscribe(bastly.from, callback);
