@@ -4,7 +4,7 @@ var request = require('request');
 var constants = require('bastly_constants');
 var bastly = {};
 var io = require('socket.io-client');
-var IP_ATAHUALPA = '192.168.0.112';
+var IP_ATAHUALPA = 'atahualpa.bastly.com';
 bastly.workers = {};
 bastly.callbacks = {};
 
@@ -15,21 +15,35 @@ var closeWorker = function(worker){
     clearInterval(worker.pingInterval);
 };
 
+
+//Interfase
+var createConnection = function(workerIp){
+    // forceNew is required because a connect/disconnect/connect cycle does not work without it
+    bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + workerIp + ':3000', {'forceNew': true });
+}
+
+//SHARED
+var registerWorker = function(workerIp, channel, callback){
+    //if it's a existing worker, recover it and continue working with it
+    bastly.workers[workerIp] = bastly.workers[workerIp] || {};
+    bastly.workers[workerIp].channels = bastly.workers[workerIp].channels || [];
+    bastly.workers[workerIp].channels.push({channel:channel});
+    bastly.workers[workerIp].ip = workerIp;
+    createConnection(workerIp);
+    bastly.workers[workerIp].pingInterval =  bastly.workers[workerIp].pingInterval || pingControl(bastly.workers[workerIp]);
+    callback(bastly.workers[workerIp]);
+}
+
+
+
+//interface
 var getWorker = function getWorker(channel, callback){
     console.log('getting worker!');
     request('http://' + IP_ATAHUALPA + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO, function (error, response, body) {
         console.log('Worker got!', body);
         var msg = JSON.parse(body);
         var workerIp = msg.message.ip;
-        //if it's a existing worker, recover it and continue working with it
-        bastly.workers[workerIp] = bastly.workers[workerIp] || {};
-        bastly.workers[workerIp].channels = bastly.workers[workerIp].channels || [];
-        bastly.workers[workerIp].channels.push({channel:channel});
-        bastly.workers[workerIp].ip = workerIp;
-        // forceNew is required because a connect/disconnect/connect cycle does not work without it
-        bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + msg.message.ip + ':3000', {'forceNew': true });
-        bastly.workers[workerIp].pingInterval =  bastly.workers[workerIp].pingInterval || pingControl(bastly.workers[workerIp]);
-        callback(bastly.workers[workerIp]);
+        registerWorker(workerIp, channel, callback);
     });
 };
 
@@ -83,7 +97,7 @@ bastly.on = function on(id, callback){
 };
 
 bastly.subscribe = function(channel, channelCallback){
-    getWorker(bastly.from, function(worker){
+    getWorker(channel, function(worker){
         console.log('worker got');
         //registers callbacks to be able to change them afterwards
         bastly.callbacks[channel] = channelCallback;
