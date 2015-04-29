@@ -1,7 +1,9 @@
 console.log('loaded');
 var _ = require('lodash');
 var bastly = {};
-var bastlySocketio = require('./bastlySocketio')();
+var bastlyConn = require('./bastlySocketio')();
+var bastlyConn = require('./bastlyZeromq')();
+
 bastly.workers = {};
 bastly.callbacks = {};
 
