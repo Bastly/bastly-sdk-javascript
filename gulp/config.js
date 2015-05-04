@@ -1,6 +1,6 @@
 var watchFolderBrowser = "./browser";
 var dest = "./build";
-var src = './src';
+var src = './src/browser';
 
 module.exports = {
   browserSync: {

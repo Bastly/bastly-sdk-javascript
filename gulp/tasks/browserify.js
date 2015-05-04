@@ -32,8 +32,12 @@ var browserifyTask = function(callback, devMode) {
       // `gulp browserify` directly will properly require and externalize.
       bundleConfig = _.omit(bundleConfig, ['external', 'require']);
       bundleConfig.dest = bundleConfig.watchFolder;
+        console.log('crazy crazy animal');
+        console.log(bundleConfig);
     }else{
       bundleConfig.dest = bundleConfig.productionFolder;
+        console.log('sane sane animal');
+        console.log(bundleConfig);
     }
 
     var b = browserify(bundleConfig);

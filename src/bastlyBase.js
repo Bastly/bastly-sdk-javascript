@@ -4,6 +4,9 @@ var bastly = {};
 var bastlyImplementation;
 bastly.workers = {};
 bastly.callbacks = {};
+bastly.callbacks['ping'] = function(data, worker){
+    worker.isAlive = true;
+};
 
 //SHARED
 var closeWorker = function(worker){
@@ -97,8 +100,8 @@ module.exports = function(bastlyImplemtentationAux){
         bastly.from = opts.from;
         bastly.apiKey = opts.apiKey;
         bastly.callbacks[bastly.from] = opts.callback;
-        if(typeof opts.ipConectorRest !== "undefined"){
-            IP_CONNECTOR_REST = opts.ipConectorRest;
+        if(typeof opts.ipToConnect !== "undefined"){
+            bastlyImplemtentationAux.IP_TO_CONNECT = opts.ipToConnect;
         }
         bastly.subscribe(bastly.from, opts.callback);
 

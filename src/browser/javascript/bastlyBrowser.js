@@ -6,6 +6,10 @@ var bastly;
 
 window.bastly = module.exports = function(opts){
     var module = {};
+
+    //INTERFACE
+    module.IP_TO_CONNECT = IP_CONNECTOR_REST;
+
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
         worker.socket.disconnect();
@@ -23,11 +27,16 @@ window.bastly = module.exports = function(opts){
     //INTERFACE
     module.getWorker = function getWorker(channel, callback){
         console.log('getting worker!');
-        request('http://' + IP_CONNECTOR_REST + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO, function (error, response, body) {
-            console.log('Worker got!', body);
-            var msg = JSON.parse(body);
-            var workerIp = msg.message.ip;
-            callback(workerIp);
+        request('http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO, function (error, response, body) {
+            if (error) {
+                console.log('error getting worker', error);
+            } else {
+                console.log('Worker got!', body);
+                var msg = JSON.parse(body);
+                var workerIp = msg.message.ip;
+                console.log('worker got', workerIp);
+                callback(workerIp);
+            }
         });
     };
 
@@ -35,7 +44,7 @@ window.bastly = module.exports = function(opts){
     module.send = function send(to, msg, callback){
         console.log('send', Date.now());
         request.post({
-                url:'http://' + IP_CONNECTOR_REST + ':8080/api/publishMessage', 
+                url:'http://' + module.IP_TO_CONNECT + ':8080/api/publishMessage', 
                 form: {to: to, from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) }
             }, 
             function(err,httpResponse,body){ 
@@ -60,14 +69,15 @@ window.bastly = module.exports = function(opts){
     module.listenToPing = function(worker){
         worker.socket.on('ping', function(){
             console.log('gotPing, worker', worker.ip, 'LIVE LONG AND PROSPER');
-            worker.isAlive = true;
+            bastly.callbacks['ping']('ping', worker);
         }); 
     };
 
-    var bastlyBase = require('./bastlyBase')(module);
+    var bastlyBase = require('../../bastlyBase')(module);
 
     bastly =  bastlyBase(opts);
     console.log('returning bastly sdk');
+    console.log(bastly.IP_TO_CONNECT);
     console.log(bastly);
     
     return bastly;
