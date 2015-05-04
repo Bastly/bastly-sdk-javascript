@@ -11,10 +11,14 @@
     <script src="bastly.js"></script>
     <script>
         var myId = "paginaWeb";
-        var bastly = bastly(myId, "nonoAhoraNo", function(data){
-            console.log('gotd', Date.now());
-            //console.log("got a message on myId:", myId, data);
-        //}, '192.168.0.112');
+        var bastly = bastly({
+            from: myId, 
+            apiKey: "nonoAhoraNo", 
+            callback: function(data){
+                console.log('gotd', Date.now());
+                //console.log("got a message on myId:", myId, data);
+                //}, '192.168.0.112');
+            }
         });
         var simpleMessageSend = function(){
             bastly.send(myId, {msg:'este es el sended message'}, function(err, httpResponse, body){
@@ -22,7 +26,7 @@
                     console.log('error, no message ACK got');
                 }else{
                     console.log('message send ACK got!');
-                    console.log(Date.now());
+                    console.log('send', Date.now());
                 }
             });
         };
