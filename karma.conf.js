@@ -13,7 +13,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'src/javascript/**/__tests__/*'
+      'src/browser/javascript/**/__tests__/*'
     ],
 
     // list of files to exclude
@@ -23,7 +23,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'src/javascript/**/__tests__/*': ['browserify']
+      'src/browser/javascript/**/__tests__/*': ['browserify']
     },
 
     browserify: {
@@ -63,6 +63,13 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: true,
+    client: {
+      captureConsole: true,
+      mocha: {
+        bail: true
+      }
+    }
+
   });
 };

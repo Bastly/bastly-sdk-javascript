@@ -20,7 +20,7 @@ module.exports = {
       productionFolder: dest,
       outputName: 'bastly.js',
       // list of externally available modules to exclude from the bundle
-      external: []
+      external: ['lodash']
     }]
   }
 };

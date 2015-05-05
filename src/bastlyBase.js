@@ -1,5 +1,3 @@
-console.log('loaded');
-var _ = require('lodash');
 var bastly = {};
 var bastlyImplementation;
 bastly.workers = {};
@@ -30,17 +28,6 @@ var registerWorker = function registerWorker(workerIp, channel, callback){
 }
 
 
-//SHARED
-var replaceWorker = function replaceWorker(worker){
-    _.each(worker.channels, function(channel){
-        getWorker(channel, function(newWorker){
-            console.log('worker got');
-            //recovering previous channel callbacks
-            bastlyImplementation.workerListenToChannelAndAssociateCallback(newWorker, channel);
-        }); 
-    });
-};
-
 
 //SHARED
 var isAlive = function isAlive(worker){
@@ -69,21 +56,29 @@ bastly.on = function on(id, callback){
     bastly.callbacks[id] = callback;
 };
 
+var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(worker, channel, channelCallback){
+    console.log('worker got');
+    console.log(worker, channel, channelCallback);
+    //registers callbacks to be able to change them afterwards
+    registerWorker(worker, channel, channelCallback);
+    bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[worker], channel);
+};
 
 //SHARED 
 bastly.subscribe = function subscribe(channel, channelCallback){
     console.log('subscribing');
     console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, function(worker){
-        console.log('worker got');
-        console.log(worker, channel, channelCallback);
-        //registers callbacks to be able to change them afterwards
-        registerWorker(worker, channel, channelCallback);
-        bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[worker], channel);
-     }); 
+    bastlyImplementation.getWorker(channel, channelCallback, registerWorkerAndListenToChannel); 
 };
 
 //SHARED
+var replaceWorker = function replaceWorker(worker){
+    for(var channelIndex in worker.channels) {
+        var channel =  worker.channels[channelIndex];
+        bastly.subscribe(channel, bastly.callbacks[channel]);
+    } 
+};
+
 
 //SHARED
 module.exports = function(bastlyImplemtentationAux){

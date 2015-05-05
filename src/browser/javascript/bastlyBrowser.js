@@ -1,8 +1,37 @@
-var request = require('request');
 var io = require('socket.io-client');
 var IP_CONNECTOR_REST = 'connectorrest.bastly.com';
 var constants = require('bastly_constants');
 var bastly;
+
+var HttpClient = function() {
+    console.log('helllooo');
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.onreadystatechange = function() { 
+            console.log(anHttpRequest);
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
+                aCallback(false, anHttpRequest.response);
+            } 
+        }
+        anHttpRequest.send( null );
+    }
+    this.post = function(aUrl, data, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+
+        anHttpRequest.open( "POST", aUrl, true);            
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
+                console.log(anHttpRequest);
+                aCallback(false, anHttpRequest.response);
+            } 
+        }
+        anHttpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        anHttpRequest.send(JSON.stringify(data));
+    }
+}
+aClient = new HttpClient();
 
 window.bastly = module.exports = function(opts){
     var module = {};
@@ -25,17 +54,20 @@ window.bastly = module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, callback){
+    module.getWorker = function getWorker(channel, channelCallback, callback){
         console.log('getting worker!');
-        request('http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO, function (error, response, body) {
-            if (error) {
-                console.log('error getting worker', error);
-            } else {
-                console.log('Worker got!', body);
-                var msg = JSON.parse(body);
+        var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO;
+        console.log(url);
+        aClient.get(url, function (error, response) {
+            if (!error) {
+                console.log('Worker got!', response);
+                var msg = JSON.parse(response);
                 var workerIp = msg.message.ip;
                 console.log('worker got', workerIp);
-                callback(workerIp);
+                callback(workerIp, channel, channelCallback);
+            } else {
+                console.log('error getting worker');
+                console.log(response);
             }
         });
     };
@@ -43,14 +75,12 @@ window.bastly = module.exports = function(opts){
     //INTERFACE
     module.send = function send(to, msg, callback){
         console.log('send', Date.now());
-        request.post({
-                url:'http://' + module.IP_TO_CONNECT + ':8080/api/publishMessage', 
-                form: {to: to, from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) }
-            }, 
-            function(err,httpResponse,body){ 
+        var url = 'http://' + module.IP_TO_CONNECT + ':8080/api/publishMessage';
+        var data = {to: to, from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) };
+        aClient.post(url, data, function (error, response) {
                 //ACK callback 
                 if(callback){
-                    callback(err, httpResponse, body);
+                    callback(error, response);
                 } 
             }
         );
@@ -77,7 +107,6 @@ window.bastly = module.exports = function(opts){
 
     bastly =  bastlyBase(opts);
     console.log('returning bastly sdk');
-    console.log(bastly.IP_TO_CONNECT);
     console.log(bastly);
     
     return bastly;
