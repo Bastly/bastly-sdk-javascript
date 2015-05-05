@@ -54,7 +54,7 @@ window.bastly = module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, channelCallback, callback){
+    module.getWorker = function getWorker(channel, from, channelCallback, callback){
         console.log('getting worker!');
         var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO;
         console.log(url);

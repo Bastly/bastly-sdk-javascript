@@ -27,8 +27,6 @@ var registerWorker = function registerWorker(workerIp, channel, callback){
     callback(bastly.workers[workerIp]);
 }
 
-
-
 //SHARED
 var isAlive = function isAlive(worker){
     //if alive, set isAlive to false, pings make it alive again
@@ -68,7 +66,7 @@ var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel
 bastly.subscribe = function subscribe(channel, channelCallback){
     console.log('subscribing');
     console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, channelCallback, registerWorkerAndListenToChannel); 
+    bastlyImplementation.getWorker(channel, bastly.from, channelCallback, registerWorkerAndListenToChannel); 
 };
 
 //SHARED

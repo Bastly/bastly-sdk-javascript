@@ -9,7 +9,8 @@ var IP_DEFAULT_ATAHUALPA = 'atahualpa.bastly.com';
 
 module.exports = function(opts){
     var module = {};
-
+    var callbacks = [];
+    var acks = [];
     //INTERFACE
     module.IP_TO_CONNECT = IP_DEFAULT_ATAHUALPA;
 
@@ -50,16 +51,15 @@ module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, callback){
+    module.getWorker = function getWorker(channel, from, channelCallback, callback){
         console.log('getting worker!');
-        log.info('get worker', clientId, chaskiType);
+        log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
             'subscribe', //ACTION
-            clientId, //TO
-            clientId, //FROM
+            channel, //TO
+            from, //FROM
             'fakeApiKey', //apiKey
-            chaskiType//type
-
+            constants.CHASKI_TYPE_ZEROMQ//type
         ];
 
         callbacks.push(callback); 
@@ -99,8 +99,6 @@ module.exports = function(opts){
     module.listenToPing = function(worker){
         worker.socket.subscribe('ping');
     };
-
-
 
     //COMMON
     var bastlyBase = require('../bastlyBase')(module);
