@@ -6,6 +6,37 @@ bastly.callbacks['ping'] = function(data, worker){
     worker.isAlive = true;
 };
 
+//PART OF UTILS
+function toArray(arrayLikeObject) {
+        return [].slice.call(arrayLikeObject);
+}
+
+function sub_curry(fn /*, variable number of args */) {
+    var args = [].slice.call(arguments, 1);
+    return function () {
+        return fn.apply(this, args.concat(toArray(arguments)));
+    };
+}
+
+function curry(fn, length) {
+    // capture fn's # of parameters
+    length = length || fn.length;
+    return function () {
+        if (arguments.length < length) {
+            // not all arguments have been specified. Curry once more.
+            console.log('arguments');
+            console.log(arguments);
+            var combined = [fn].concat(toArray(arguments));
+            return length - arguments.length > 0 
+                ? curry(sub_curry.apply(this, combined), length - arguments.length)
+                : sub_curry.call(this, combined );
+        } else {
+            // all arguments have been specified, actually call function
+            return fn.apply(this, arguments);
+        }
+    };
+}
+
 //SHARED
 var closeWorker = function(worker){
     console.log('closing Worker', worker.ip);
@@ -54,7 +85,7 @@ bastly.on = function on(id, callback){
     bastly.callbacks[id] = callback;
 };
 
-var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(worker, channel, channelCallback){
+var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, worker){
     console.log('worker got');
     console.log(worker, channel, channelCallback);
     //registers callbacks to be able to change them afterwards
@@ -66,7 +97,7 @@ var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel
 bastly.subscribe = function subscribe(channel, channelCallback){
     console.log('subscribing');
     console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, bastly.from, channelCallback, registerWorkerAndListenToChannel); 
+    bastlyImplementation.getWorker(channel, bastly.from, curry(registerWorkerAndListenToChannel)(channel, channelCallback)); 
 };
 
 //SHARED

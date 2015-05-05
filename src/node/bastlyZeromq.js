@@ -18,9 +18,9 @@ module.exports = function(opts){
     requestChaskiSocket.on('message', function(result, data){
         var parsedResponse = JSON.parse(data);
         log.info('got message', parsedResponse);
-        module.chaski.ip = parsedResponse.ip;
+        var workerIp = parsedResponse.ip;
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
-        callbacks.shift()(parsedResponse);
+        callbacks.shift()(workerIp);
     });
 
 
@@ -51,7 +51,7 @@ module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, channelCallback, callback){
+    module.getWorker = function getWorker(channel, from, callback){
         console.log('getting worker!');
         log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
@@ -70,7 +70,7 @@ module.exports = function(opts){
     module.send = function send(to, msg, callback){
         console.log('send', Date.now());
         var data;
-        if(typeof message === 'object'){
+        if(typeof msg === 'object'){
             data = JSON.stringify(msg);
         } else {
             throw new Error('message must be a javascrip object');
