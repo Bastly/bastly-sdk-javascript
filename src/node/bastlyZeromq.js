@@ -27,7 +27,10 @@ module.exports = function(opts){
     sendMessageSocket.connect('tcp://' + module.IP_TO_CONNECT + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_MESSAGES);
     sendMessageSocket.on('message', function(res, message){
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
-        acks.shift()(res.toString()); 
+        var ack = acks.shift();
+        if(ack){
+            ack(res.toString())
+        }; 
     });
 
 

@@ -10,7 +10,7 @@ var HttpClient = function() {
 
         anHttpRequest.open( "GET", aUrl, true );            
         anHttpRequest.onreadystatechange = function() { 
-            console.log(anHttpRequest);
+            //console.log(anHttpRequest);
             if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
                 aCallback(false, anHttpRequest.response);
             } 
@@ -23,7 +23,7 @@ var HttpClient = function() {
         anHttpRequest.open( "POST", aUrl, true);            
         anHttpRequest.onreadystatechange = function() { 
             if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
-                console.log(anHttpRequest);
+                //console.log(anHttpRequest);
                 aCallback(false, anHttpRequest.response);
             } 
         }
@@ -47,7 +47,7 @@ window.bastly = module.exports = function(opts){
     //INTERFACE
     module.createConnection = function createConnection(workerIp){
         console.log('creating connection for', workerIp);
-        console.log(bastly);
+        //console.log(bastly);
         
         // forceNew is required because a connect/disconnect/connect cycle does not work without it
         bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + workerIp + ':3000', {'forceNew': true });
@@ -57,13 +57,12 @@ window.bastly = module.exports = function(opts){
     module.getWorker = function getWorker(channel, from, callback){
         console.log('getting worker!');
         var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO;
-        console.log(url);
+        //console.log(url);
         aClient.get(url, function (error, response) {
             if (!error) {
                 console.log('Worker got!', response);
                 var msg = JSON.parse(response);
                 var workerIp = msg.message.ip;
-                console.log('worker got', workerIp);
                 callback(workerIp);
             } else {
                 console.log('error getting worker');
@@ -89,7 +88,7 @@ window.bastly = module.exports = function(opts){
     //INTERFACE
     module.workerListenToChannelAndAssociateCallback = function (worker, channel){
         console.log('workerListenToChannelAndAssociateCallback');
-        console.log(worker);
+        //console.log(worker);
         worker.socket.on(channel, function(data){
             bastly.callbacks[channel](data);
         });
@@ -107,7 +106,7 @@ window.bastly = module.exports = function(opts){
 
     bastly =  bastlyBase(opts);
     console.log('returning bastly sdk');
-    console.log(bastly);
+    //console.log(bastly);
     
     return bastly;
 };

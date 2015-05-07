@@ -23,7 +23,7 @@ describe('Sanity check', function() {
 
 describe('Can subscribe to a channel', function() {
     it('requests a worker', function (done) {
-        bastly.subscribe("newChannel", function(response){
+        bastly.subscribe("newChannel", undefined, function(response){
             done();
         });
     });

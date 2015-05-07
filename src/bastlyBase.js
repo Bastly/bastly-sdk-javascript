@@ -24,8 +24,8 @@ function curry(fn, length) {
     return function () {
         if (arguments.length < length) {
             // not all arguments have been specified. Curry once more.
-            console.log('arguments');
-            console.log(arguments);
+            //console.log('arguments');
+            //console.log(arguments);
             var combined = [fn].concat(toArray(arguments));
             return length - arguments.length > 0 
                 ? curry(sub_curry.apply(this, combined), length - arguments.length)
@@ -46,7 +46,7 @@ var closeWorker = function(worker){
 };
 
 //SHARED
-var registerWorker = function registerWorker(workerIp, channel, callback){
+var registerWorker = function registerWorker(workerIp, channel, channelCallback, callback){
     //if it's a existing worker, recover it and continue working with it
     bastly.workers[workerIp] = bastly.workers[workerIp] || {};
     bastly.workers[workerIp].channels = bastly.workers[workerIp].channels || [];
@@ -54,15 +54,17 @@ var registerWorker = function registerWorker(workerIp, channel, callback){
     bastly.workers[workerIp].ip = workerIp;
     bastlyImplementation.createConnection(workerIp);
     bastly.workers[workerIp].pingInterval =  bastly.workers[workerIp].pingInterval || pingControl(bastly.workers[workerIp]);
-    bastly.callbacks[channel] = callback;
-    callback(bastly.workers[workerIp]);
+    bastly.callbacks[channel] = channelCallback;
+    if(callback){
+        callback();
+    }
 }
 
 //SHARED
 var isAlive = function isAlive(worker){
     //if alive, set isAlive to false, pings make it alive again
     if(worker.isAlive === true){
-        console.log('worker:', worker.ip, "IT'S ALIVE!");
+        //console.log('worker:', worker.ip, "IT'S ALIVE!");
         worker.isAlive = false;
     } else {
         console.log('worker:', worker.ip, "is dead... RIP");
@@ -85,19 +87,23 @@ bastly.on = function on(id, callback){
     bastly.callbacks[id] = callback;
 };
 
-var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, worker){
+var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, callback, workerIp){
     console.log('worker got');
-    console.log(worker, channel, channelCallback);
+    console.log(workerIp, channel, channelCallback);
     //registers callbacks to be able to change them afterwards
-    registerWorker(worker, channel, channelCallback);
-    bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[worker], channel);
+    registerWorker(workerIp, channel, channelCallback, function(){
+        bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[workerIp], channel);
+        if(callback){
+            callback();
+        }
+    });
 };
 
 //SHARED 
-bastly.subscribe = function subscribe(channel, channelCallback){
+bastly.subscribe = function subscribe(channel, channelCallback, callback){
     console.log('subscribing');
-    console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, bastly.from, curry(registerWorkerAndListenToChannel)(channel, channelCallback)); 
+    //console.log(channel, channelCallback);
+    bastlyImplementation.getWorker(channel, bastly.from, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
 };
 
 //SHARED
@@ -114,11 +120,11 @@ module.exports = function(bastlyImplemtentationAux){
 
     bastlyImplementation =  bastlyImplemtentationAux;
     console.log('implementation');
-    console.log(bastlyImplementation);
+    //console.log(bastlyImplementation);
 
     return function(opts){
         console.log('loading sdk');
-        console.log(opts);
+        //console.log(opts);
 
         //TODO missing checks
         bastly.from = opts.from;
