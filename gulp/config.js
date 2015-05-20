@@ -1,5 +1,5 @@
 var watchFolderBrowser = "./browser";
-var dest = "./build";
+var dest = "./build/browser";
 var src = './src/browser';
 
 module.exports = {
