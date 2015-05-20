@@ -18,6 +18,10 @@ module.exports = function(opts){
     requestChaskiSocket.on('message', function(result, data){
         var parsedResponse = JSON.parse(data);
         log.info('got message', parsedResponse);
+        log.info('got message', parsedResponse);
+        log.info('got message', parsedResponse);
+        log.info('got message', parsedResponse);
+        log.info('got message', parsedResponse);
         var workerIp = parsedResponse.ip;
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
         callbacks.shift()(workerIp);
@@ -48,13 +52,25 @@ module.exports = function(opts){
         var reveiverUrl = 'tcp://' + workerIp + ':' + constants.PORT_PUB_SUB_CHASKI_CLIENT_MESSAGES;
         log.info('connecting', reveiverUrl);
         bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || newSub.connect(reveiverUrl);
-        bastly.workers[workerIp].socket.on('message', function(topic, data, worker){
-            bastly.callbacks[topic](data);
+        bastly.workers[workerIp].socket.on('message', function(topic, from,  data){
+            log.info('message got', topic.toString(), data.toString(), data.toString());
+            data = JSON.parse(data);
+            bastly.callbacks[topic](data, undefined);
         });
     }
 
     //INTERFACE
     module.getWorker = function getWorker(channel, from, callback){
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
+        console.log('getting worker!');
         console.log('getting worker!');
         log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
@@ -94,7 +110,7 @@ module.exports = function(opts){
     //INTERFACE
     module.workerListenToChannelAndAssociateCallback = function (worker, channel){
         console.log('workerListenToChannelAndAssociateCallback');
-        console.log(worker);
+        //console.log(worker);
         worker.socket.subscribe(channel) 
     };
 

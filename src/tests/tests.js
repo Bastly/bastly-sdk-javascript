@@ -1,29 +1,40 @@
+
+
 module.exports = function(opts){
     var assert = require('chai').assert;
-    var bastly;
+    var _ = require('lodash');
     var testChannel = "testChannel";
     var testApikey = "testApiKey";
     var testData = {name:"simpleObject"};
-    if( opts.library === "ZEROMQ"){
-        var bastly = require('../node/bastlyZeromq.js');
-        bastly = bastly({
-            from: testChannel,
-            apiKey: testApikey,
-            callback: function (data){
-                console.log("got a response");
-            }
-        });
-    }
-    if(opts.library === "SOCKETIO"){
-        bastly = require('../browser/javascript/bastlyBrowser.js')({
-            from: testChannel,
-            apiKey: testApikey,
-            callback: function (data){
-                console.log("got a response");
-            }
-        });
-    }
+    var bastly;
+    var library;
+    library = opts.library;
 
+    before(function(){
+        if( opts.library === "ZEROMQ"){
+            bastly = require('../node/bastlyZeromq.js');
+            bastly = bastly({
+                from: testChannel,
+                apiKey: testApikey,
+                callback: function (data){
+                    console.log("got a response");
+                }
+            });
+        }
+        if(opts.library === "SOCKETIO"){
+            bastly = require('../browser/javascript/bastlyBrowser.js')({
+                from: testChannel,
+                apiKey: testApikey,
+                callback: function (data){
+                    console.log("got a response");
+                }
+            });
+        }
+    });
+
+    after(function(){
+        bastly.close();
+    });
     describe('Sanity check', function() {
         it('tests work', function (done) {
             assert.equal('200', '200');
@@ -49,15 +60,12 @@ module.exports = function(opts){
 
     describe('Receives messages sended', function() {
         var receiveTestChannel = "receiveTestChannel";
-        it('Receives messages for new Can send messages', function (done) {
+        it('Message sended is equal to message received', function (done) {
             bastly.subscribe(receiveTestChannel, function(data, data2){
-                console.log('data'); 
-                console.log(data); 
-                console.log('data2'); 
-                console.log(data2); 
-                console.log('testData'); 
-                console.log(testData); 
+                //must change callback, at this stage many equal messages are send  
+                bastly.on(receiveTestChannel, function(){});
                 assert.equal(true,_.isEqual(data, testData));
+                console.log('calling done-------------------------------------------------');
                 done();
             }, function(){
                 //subscription is completed, send a message

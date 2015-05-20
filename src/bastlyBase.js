@@ -37,8 +37,36 @@ function curry(fn, length) {
     };
 }
 
+
 //SHARED
-var closeWorker = function(worker){
+bastly.callCallback = function callCallback(channel, dataRaw, worker){
+    console.log('data received');
+    /*
+    console.log(dataRaw);
+    console.log(typeof dataRaw);
+    console.log(dataRaw.data);
+    */
+    var data = JSON.parse(dataRaw.data);
+    var from = dataRaw.from;
+    
+    bastly.callbacks[channel](data, worker);
+};
+
+//SHARED
+bastly.pingGot = function pingGot(worker){
+   bastly.callbacks['ping'](undefined, worker);
+};
+
+
+//SHARED
+bastly.close = function close(){
+    for(var w in bastly.workers){
+        closeWorker(bastly.workers[w]);
+    }
+};
+
+//SHARED
+var closeWorker = function closeWorker(worker){
     console.log('closing Worker', worker.ip);
     bastlyImplementation.closeConnection(worker);
     bastly.workers[worker.ip] = {};
@@ -83,8 +111,12 @@ var pingControl = function pingControl(worker){
 
 //SHARED
 // for assigning new callbacks
-bastly.on = function on(id, callback){
-    bastly.callbacks[id] = callback;
+bastly.on = function on(channel, callback){
+    var previousCallback = bastly.callbacks[channel];
+    bastly.callbacks[channel] = callback;
+    if(!previousCallback){
+        bastly.subscribe(channel, bastly.callbacks[channel]);
+    } 
 };
 
 var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, callback, workerIp){

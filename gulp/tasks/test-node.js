@@ -16,7 +16,7 @@ function onError(err) {
 }
 
 gulp.task('test-node', function() {
-    return gulp.src(['src/node/test.js'], { read: false })
+    return gulp.src(['src/tests/testNode.js'], { read: false })
         .pipe(mocha({reporter: 'nyan'}))
         .on('error', onError);
 });

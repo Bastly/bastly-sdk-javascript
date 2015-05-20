@@ -66,7 +66,7 @@ window.bastly = module.exports = function(opts){
                 callback(workerIp);
             } else {
                 console.log('error getting worker');
-                console.log(response);
+                //console.log(response);
             }
         });
     };
@@ -90,15 +90,16 @@ window.bastly = module.exports = function(opts){
         console.log('workerListenToChannelAndAssociateCallback');
         //console.log(worker);
         worker.socket.on(channel, function(data){
-            bastly.callbacks[channel](data);
+            bastly.callCallback(channel, data, worker);
         });
     };
 
     //INTERFACE
     module.listenToPing = function(worker){
-        worker.socket.on('ping', function(){
+        worker.socket.on('ping', function(data){
             console.log('gotPing, worker', worker.ip, 'LIVE LONG AND PROSPER');
-            bastly.callbacks['ping']('ping', worker);
+            //bastly.callCallback('ping', data, worker);
+            bastly.pingGot(worker);
         }); 
     };
 
