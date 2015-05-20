@@ -1,0 +1,32 @@
+{
+  "name": "bastly",
+  "version": "0.0.7",
+  "description": "Bastly nodejs sdk",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive -R xunit test/ > test-reports.xml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bastly/sdk-node.git"
+  },
+  "keywords": [
+    "bastly",
+    "nodejs",
+    "sdk",
+    "javascript",
+    "realtime"
+  ],
+  "author": "Bastly <info@bastly.com> (http://bastly.com/)",
+  "license": "AGPL",
+  "bugs": {
+    "url": "https://github.com/Bastly/sdk-node/issues"
+  },
+  "homepage": "https://github.com/Bastly/sdk-node",
+  "dependencies": {
+    "bastly_constants": "*",
+    "bunyan": "^1.3.4",
+    "mocha": "^2.2.4",
+    "zmq": "^2.10.0"
+  }
+}
