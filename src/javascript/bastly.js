@@ -69,6 +69,16 @@ var isAlive = function(worker){
     }
 };
 
+function randomString(len, charSet) {
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz,randomPoz+1);
+    }
+    return randomString;
+}
+
 var pingControl = function(worker){
     worker.socket.on('ping', function(){
         console.log('gotPing, worker', worker.ip, 'LIVE LONG AND PROSPER');
@@ -93,15 +103,25 @@ bastly.subscribe = function(channel, channelCallback){
     }); 
 };
 
-window.bastly = module.exports = function(from, apiKey, callback, ipAtahualpa){
-
-    //TODO missing checks
-    bastly.from = from;
+window.bastly = module.exports = function(from, apiKey, callback, ipAtahualpa) {
+    //create session UUID
+    bastly.from = from + randomString(8);
     bastly.apiKey = apiKey;
     bastly.callbacks[bastly.from] = callback;
     if(typeof ipAtahualpa !== "undefined"){
         IP_ATAHUALPA = ipAtahualpa;
     }
+
+    setInterval(function() {
+        request.post({
+            url:'http://' + IP_CURACA + ':8080/security/ping', 
+            form: {action: 'PING', to: 'noone', from: bastly.from, apiKey: bastly.apiKey }
+        }, 
+        function(err,httpResponse,body){ 
+           console.log(httpResponse);
+        }
+        );
+    }, 2 * 60 * 1000);
 
     bastly.subscribe(bastly.from, callback);
 
