@@ -1,28 +1,26 @@
+var watchFolderBrowser = "./browser";
 var dest = "./build";
-var src = './src';
+var src = './src/browser';
 
 module.exports = {
   browserSync: {
     server: {
       // Serve up our build folder
-      baseDir: dest
+      baseDir: watchFolderBrowser 
     }
   },
   markup: {
     src: src + "/htdocs/**",
-    dest: dest
+    dest: watchFolderBrowser 
   },
   browserify: {
     bundleConfigs: [{
-      entries: src + '/javascript/bastly.js',
-      dest: dest,
+      entries: src + '/javascript/bastlyBrowser.js',
+      watchFolder: watchFolderBrowser,
+      productionFolder: dest,
       outputName: 'bastly.js',
       // list of externally available modules to exclude from the bundle
       external: ['lodash']
     }]
-  },
-  production: {
-    jsSrc: dest + '/*.js',
-    dest: dest
   }
 };

@@ -1,0 +1,30 @@
+
+
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="bastly.js"></script>
+    <script>
+        var myId = "paginaWeb";
+        var bastly = bastly({
+            from: myId, 
+            apiKey: "nonoAhoraNo", 
+            callback: function(data){
+                console.log('gotd', Date.now());
+                console.log(data);
+            }
+        });
+        var simpleMessageSend = function(){
+            bastly.send(myId, {msg:'este es el sended message'}, function(err, httpResponse, body){
+                if(err){
+                    console.log('error, no message ACK got');
+                }else{
+                    console.log('message send ACK got!');
+                    console.log('send', Date.now());
+                }
+            });
+        };
+    </script>
+</body>
+</html>
+

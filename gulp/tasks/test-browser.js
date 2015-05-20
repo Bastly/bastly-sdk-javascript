@@ -8,6 +8,6 @@ var karmaTask = function(done) {
   }, done);
 };
 
-gulp.task('karma', karmaTask);
+gulp.task('test-browser', karmaTask);
 
 module.exports = karmaTask;
