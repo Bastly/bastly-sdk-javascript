@@ -135,7 +135,11 @@ var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel
 bastly.subscribe = function subscribe(channel, channelCallback, callback){
     console.log('subscribing');
     //console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, bastly.from, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
+    bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
+};
+
+bastly.getWorker = function getWorker(channel, from, apiKey, callback){
+    bastlyImplementation.getWorker(channel, from, apiKey, callback);
 };
 
 //SHARED
@@ -146,6 +150,15 @@ var replaceWorker = function replaceWorker(worker){
     } 
 };
 
+function randomString(len, charSet) {
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz,randomPoz+1);
+    }
+    return randomString;
+}
 
 //SHARED
 module.exports = function(bastlyImplemtentationAux){
@@ -154,20 +167,26 @@ module.exports = function(bastlyImplemtentationAux){
     console.log('implementation');
     //console.log(bastlyImplementation);
 
-    return function(opts){
+    return function(opts) {
         console.log('loading sdk');
-        //console.log(opts);
 
-        //TODO missing checks
-        bastly.from = opts.from;
+        bastly.from = opts.from + randomString(8);
         bastly.apiKey = opts.apiKey;
         bastly.callbacks[bastly.from] = opts.callback;
-        if(typeof opts.ipToConnect !== "undefined"){
-            bastlyImplemtentationAux.IP_TO_CONNECT = opts.ipToConnect;
+
+        if(typeof opts.connector !== "undefined"){
+            bastlyImplemtentationAux.IP_TO_CONNECT = opts.connector;
+        }if(typeof opts.curaca !== "undefined"){
+            bastlyImplemtentationAux.IP_TO_CURACA = opts.curaca;
         }
+
         bastly.subscribe(bastly.from, opts.callback);
 
         bastly.send = bastlyImplementation.send;
+
+        setInterval( function ping () {
+            bastlyImplementation.ping();
+        }, 2 * 60 * 1000);
 
         return bastly;
     };

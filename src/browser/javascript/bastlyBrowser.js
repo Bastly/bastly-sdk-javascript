@@ -1,10 +1,11 @@
 var io = require('socket.io-client');
 var IP_CONNECTOR_REST = 'connectorrest.bastly.com';
+var IP_CURACA = 'curaca.bastly.com';
 var constants = require('bastly_constants');
 var bastly;
 
 var HttpClient = function() {
-    console.log('helllooo');
+
     this.get = function(aUrl, aCallback) {
         var anHttpRequest = new XMLHttpRequest();
 
@@ -13,7 +14,9 @@ var HttpClient = function() {
             //console.log(anHttpRequest);
             if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
                 aCallback(false, anHttpRequest.response);
-            } 
+            } else if (anHttpRequest.readyState == 4) {
+                aCallback(true, anHttpRequest.response);
+            }
         }
         anHttpRequest.send( null );
     }
@@ -37,7 +40,8 @@ window.bastly = module.exports = function(opts){
     var module = {};
 
     //INTERFACE
-    module.IP_TO_CONNECT = IP_CONNECTOR_REST;
+    module.IP_TO_CONNECT = opts.connector || IP_CONNECTOR_REST;
+    module.IP_TO_CURACA = opts.curaca || IP_CURACA;
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
@@ -47,16 +51,14 @@ window.bastly = module.exports = function(opts){
     //INTERFACE
     module.createConnection = function createConnection(workerIp){
         console.log('creating connection for', workerIp);
-        //console.log(bastly);
-        
         // forceNew is required because a connect/disconnect/connect cycle does not work without it
         bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + workerIp + ':3000', {'forceNew': true });
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, callback){
+    module.getWorker = function getWorker(channel, from, apiKey,callback){
         console.log('getting worker!');
-        var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO;
+        var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&from=' + from + '&apiKey=' + apiKey;
         //console.log(url);
         aClient.get(url, function (error, response) {
             if (!error) {
@@ -65,8 +67,7 @@ window.bastly = module.exports = function(opts){
                 var workerIp = msg.message.ip;
                 callback(workerIp);
             } else {
-                console.log('error getting worker');
-                //console.log(response);
+                console.log('error getting worker: ' + response);
             }
         });
     };
@@ -75,7 +76,7 @@ window.bastly = module.exports = function(opts){
     module.send = function send(to, msg, callback){
         console.log('send', Date.now());
         var url = 'http://' + module.IP_TO_CONNECT + ':8080/api/publishMessage';
-        var data = {to: to, from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) };
+        var data = {to: 'noone', from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) };
         aClient.post(url, data, function (error, response) {
                 //ACK callback 
                 if(callback){
@@ -103,9 +104,22 @@ window.bastly = module.exports = function(opts){
         }); 
     };
 
+    module.ping = function () {
+        var url = 'http://' + module.IP_TO_CURACA + ':8080/security/ping';
+        var data = {action: 'PING',to: to, from: bastly.from, apiKey: bastly.apiKey };
+        aClient.post(url, data, function (error, response) {
+                //ACK callback 
+                if(callback){
+                    callback(error, response);
+                } 
+            }
+        );
+    };
+
     var bastlyBase = require('../../bastlyBase')(module);
 
     bastly =  bastlyBase(opts);
+    
     console.log('returning bastly sdk');
     //console.log(bastly);
     

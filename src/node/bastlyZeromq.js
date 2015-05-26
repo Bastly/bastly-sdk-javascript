@@ -3,9 +3,11 @@ var log = logHandler({name:'sdk-node', log:log});
 var zmq = require('zmq');
 var constants = require('bastly_constants');
 var requestChaskiSocket = zmq.socket('req'); 
-var sendMessageSocket = zmq.socket('req'); 
+var sendMessageSocket = zmq.socket('req');
+var pingImAliveSocket = zmq.socket('req'); 
 var bastly;
 var IP_DEFAULT_ATAHUALPA = 'atahualpa.bastly.com';
+var IP_DEFAULT_CURACA = 'curaca.bastly.com';
 
 module.exports = function(opts){
     var module = {};
@@ -13,7 +15,9 @@ module.exports = function(opts){
     var acks = [];
     //INTERFACE
     module.IP_TO_CONNECT = IP_DEFAULT_ATAHUALPA;
+    module.IP_TO_CURACA = IP_DEFAULT_CURACA;
 
+    // Request chaskis socket
     requestChaskiSocket.connect('tcp://' + module.IP_TO_CONNECT + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_REQUEST_WORKER);
     requestChaskiSocket.on('message', function(result, data){
         var parsedResponse = JSON.parse(data);
@@ -23,7 +27,7 @@ module.exports = function(opts){
         callbacks.shift()(workerIp);
     });
 
-
+    // Send messages sockets
     sendMessageSocket.connect('tcp://' + module.IP_TO_CONNECT + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_MESSAGES);
     sendMessageSocket.on('message', function(res, message){
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
@@ -33,11 +37,18 @@ module.exports = function(opts){
         }; 
     });
 
+    // ping im alive sockets
+    pingImAliveSocket.connect('tcp://' + module.IP_TO_CURACA + ':' + constants.PORT_REQ_REP_ATAHUALPA_CURACA_COMM);
+    sendMessageSocket.on('message', function(res, message){};
+
+    
+
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
         sendMessageSocket.close();
         requestChaskiSocket.close();
+        pingImAliveSocket.close();
     };
 
     //INTERFACE
@@ -55,15 +66,25 @@ module.exports = function(opts){
         });
     }
 
+    module.ping = function ping () {
+        var dataToSendForRequestingWoker = [
+            'PING', //ACTION
+            'noone', //TO
+            bastly.from, //FROM
+            bastly.apiKey //apiKey
+        ];
+        pingImAliveSocket.send(dataToSendForRequestingWoker);
+    }
+
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, callback){
+    module.getWorker = function getWorker(channel, callback){
         console.log('getting worker!');
         log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
             'subscribe', //ACTION
             channel, //TO
-            from, //FROM
-            'fakeApiKey', //apiKey
+            bastly.from, //FROM
+            bastly.apiKey, //apiKey
             constants.CHASKI_TYPE_ZEROMQ//type
         ];
 

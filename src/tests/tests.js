@@ -1,5 +1,3 @@
-
-
 module.exports = function(opts){
     var assert = require('chai').assert;
     var _ = require('lodash');
@@ -35,6 +33,8 @@ module.exports = function(opts){
     after(function(){
         bastly.close();
     });
+
+    //TODO check responses
     describe('Sanity check', function() {
         it('tests work', function (done) {
             assert.equal('200', '200');
@@ -61,13 +61,13 @@ module.exports = function(opts){
     describe('Receives messages sended', function() {
         var receiveTestChannel = "receiveTestChannel";
         it('Message sended is equal to message received', function (done) {
-            bastly.subscribe(receiveTestChannel, function(data, data2){
+            bastly.subscribe(receiveTestChannel, function messageCb (data, data2){
                 //must change callback, at this stage many equal messages are send  
-                bastly.on(receiveTestChannel, function(){});
+                //bastly.on(receiveTestChannel, function(){});
                 assert.equal(true,_.isEqual(data, testData));
                 console.log('calling done-------------------------------------------------');
                 done();
-            }, function(){
+            }, function finishedSubscription (){
                 //subscription is completed, send a message
                 console.log("sending messagesss");
                 bastly.send(receiveTestChannel, testData);
