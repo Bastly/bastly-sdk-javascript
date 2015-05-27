@@ -77,14 +77,14 @@ module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, callback){
+    module.getWorker = function getWorker(channel, from, apiKey, callback){
         console.log('getting worker!');
         log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
             'subscribe', //ACTION
             channel, //TO
-            bastly.from, //FROM
-            bastly.apiKey, //apiKey
+            from, //FROM
+            apiKey, //apiKey
             constants.CHASKI_TYPE_ZEROMQ//type
         ];
 
