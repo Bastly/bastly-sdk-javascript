@@ -174,17 +174,11 @@ module.exports = function(bastlyImplemtentationAux){
         bastly.apiKey = opts.apiKey;
         bastly.callbacks[bastly.from] = opts.callback;
 
-        // if(opts.connector){
-        //     bastlyImplemtentationAux.IP_TO_CONNECT = opts.connector;
-        // }if(opts.curaca){
-        //     bastlyImplemtentationAux.IP_TO_CURACA = opts.curaca;
-        // }
-
-        bastly.subscribe(bastly.from, opts.callback);
-
         bastly.send = bastlyImplementation.send;
 
         if (opts.middleware && opts.middleware != true) {
+            bastly.subscribe(bastly.from, opts.callback);
+
             setInterval( function ping () {
                 bastlyImplementation.ping();
             }, 2 * 60 * 1000);
