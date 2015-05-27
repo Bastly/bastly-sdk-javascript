@@ -138,8 +138,8 @@ bastly.subscribe = function subscribe(channel, channelCallback, callback){
     bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
 };
 
-bastly.getWorker = function getWorker(channel, from, apiKey, callback){
-    bastlyImplementation.getWorker(channel, from, apiKey, callback);
+bastly.getWorker = function getWorker(channel, from, apiKey, callback, type){
+    bastlyImplementation.getWorker(channel, from, apiKey, callback, type);
 };
 
 //SHARED

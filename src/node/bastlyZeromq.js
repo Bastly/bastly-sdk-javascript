@@ -77,7 +77,7 @@ module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, apiKey, callback){
+    module.getWorker = function getWorker(channel, from, apiKey, callback, type){
         console.log('getting worker!');
         log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
@@ -85,7 +85,7 @@ module.exports = function(opts){
             channel, //TO
             from, //FROM
             apiKey, //apiKey
-            constants.CHASKI_TYPE_ZEROMQ//type
+            type || constants.CHASKI_TYPE_ZEROMQ//type
         ];
 
         callbacks.push(callback); 
