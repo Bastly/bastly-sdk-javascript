@@ -14,8 +14,8 @@ module.exports = function(opts){
     var callbacks = [];
     var acks = [];
     //INTERFACE
-    module.IP_TO_CONNECT = IP_DEFAULT_ATAHUALPA;
-    module.IP_TO_CURACA = IP_DEFAULT_CURACA;
+    module.IP_TO_CONNECT =  opts.connector || IP_DEFAULT_ATAHUALPA;
+    module.IP_TO_CURACA = opts.curaca || IP_DEFAULT_CURACA;
 
     // Request chaskis socket
     requestChaskiSocket.connect('tcp://' + module.IP_TO_CONNECT + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_REQUEST_WORKER);
@@ -37,12 +37,11 @@ module.exports = function(opts){
         }; 
     });
 
-    // ping im alive sockets
-    pingImAliveSocket.connect('tcp://' + module.IP_TO_CURACA + ':' + constants.PORT_REQ_REP_ATAHUALPA_CURACA_COMM);
-    sendMessageSocket.on('message', function(res, message){};
-
-    
-
+    if (opts.middleware && opts.middleware != true) {
+        // ping im alive sockets
+        pingImAliveSocket.connect('tcp://' + module.IP_TO_CURACA + ':' + constants.PORT_REQ_REP_ATAHUALPA_CURACA_COMM);
+        pingImAliveSocket.on('message', function(res, message){});
+    }
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
@@ -67,14 +66,16 @@ module.exports = function(opts){
     }
 
     module.ping = function ping () {
-        var dataToSendForRequestingWoker = [
-            'PING', //ACTION
-            'noone', //TO
-            bastly.from, //FROM
-            bastly.apiKey //apiKey
-        ];
-        pingImAliveSocket.send(dataToSendForRequestingWoker);
-    }
+        if (opts.middleware && opts.middleware != true) {
+            var dataToSendForRequestingWoker = [
+                'PING', //ACTION
+                'noone', //TO
+                bastly.from, //FROM
+                bastly.apiKey //apiKey
+            ];
+            pingImAliveSocket.send(dataToSendForRequestingWoker);
+        }
+    };
 
     //INTERFACE
     module.getWorker = function getWorker(channel, from, apiKey, callback, type){
@@ -127,9 +128,9 @@ module.exports = function(opts){
     };
 
     //COMMON
+    console.log('creating bastly');
     var bastlyBase = require('../bastlyBase')(module);
     bastly =  bastlyBase(opts);
-    
-    IP_TO_CONNECT = bastly.IP_TO_CONNECT || IP_DEFAULT_ATAHUALPA;
+
     return bastly;
 };

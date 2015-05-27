@@ -1,6 +1,6 @@
 {
   "name": "bastly",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "Bastly nodejs sdk",
   "main": "index.js",
   "scripts": {

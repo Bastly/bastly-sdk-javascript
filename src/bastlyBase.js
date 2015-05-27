@@ -8,7 +8,7 @@ bastly.callbacks['ping'] = function(data, worker){
 
 //PART OF UTILS
 function toArray(arrayLikeObject) {
-        return [].slice.call(arrayLikeObject);
+    return [].slice.call(arrayLikeObject);
 }
 
 function sub_curry(fn /*, variable number of args */) {
@@ -28,8 +28,8 @@ function curry(fn, length) {
             //console.log(arguments);
             var combined = [fn].concat(toArray(arguments));
             return length - arguments.length > 0 
-                ? curry(sub_curry.apply(this, combined), length - arguments.length)
-                : sub_curry.call(this, combined );
+            ? curry(sub_curry.apply(this, combined), length - arguments.length)
+            : sub_curry.call(this, combined );
         } else {
             // all arguments have been specified, actually call function
             return fn.apply(this, arguments);
@@ -54,7 +54,7 @@ bastly.callCallback = function callCallback(channel, dataRaw, worker){
 
 //SHARED
 bastly.pingGot = function pingGot(worker){
-   bastly.callbacks['ping'](undefined, worker);
+ bastly.callbacks['ping'](undefined, worker);
 };
 
 
@@ -167,27 +167,29 @@ module.exports = function(bastlyImplemtentationAux){
     console.log('implementation');
     //console.log(bastlyImplementation);
 
-    return function(opts) {
+    return function (opts) {
         console.log('loading sdk');
 
         bastly.from = opts.from + randomString(8);
         bastly.apiKey = opts.apiKey;
         bastly.callbacks[bastly.from] = opts.callback;
 
-        if(typeof opts.connector !== "undefined"){
-            bastlyImplemtentationAux.IP_TO_CONNECT = opts.connector;
-        }if(typeof opts.curaca !== "undefined"){
-            bastlyImplemtentationAux.IP_TO_CURACA = opts.curaca;
-        }
+        // if(opts.connector){
+        //     bastlyImplemtentationAux.IP_TO_CONNECT = opts.connector;
+        // }if(opts.curaca){
+        //     bastlyImplemtentationAux.IP_TO_CURACA = opts.curaca;
+        // }
 
         bastly.subscribe(bastly.from, opts.callback);
 
         bastly.send = bastlyImplementation.send;
 
-        setInterval( function ping () {
-            bastlyImplementation.ping();
-        }, 2 * 60 * 1000);
-
+        if (opts.middleware && opts.middleware != true) {
+            setInterval( function ping () {
+                bastlyImplementation.ping();
+            }, 2 * 60 * 1000);
+        }
+        
         return bastly;
     };
 };

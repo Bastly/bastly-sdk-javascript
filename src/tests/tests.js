@@ -12,6 +12,9 @@ module.exports = function(opts){
         if( opts.library === "ZEROMQ"){
             bastly = require('../node/bastlyZeromq.js');
             bastly = bastly({
+                middleware: true,
+                // connector:'192.168.1.234',
+                // curaca: '192.168.1.236',
                 from: testChannel,
                 apiKey: testApikey,
                 callback: function (data){
@@ -22,6 +25,8 @@ module.exports = function(opts){
         if(opts.library === "SOCKETIO"){
             bastly = require('../browser/javascript/bastlyBrowser.js')({
                 from: testChannel,
+                // connector:'192.168.1.234',
+                // curaca: '192.168.1.236',
                 apiKey: testApikey,
                 callback: function (data){
                     console.log("got a response");
