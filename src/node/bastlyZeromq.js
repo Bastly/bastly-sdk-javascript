@@ -38,7 +38,7 @@ module.exports = function(opts){
         }; 
     });
 
-    if (opts.middleware && opts.middleware != true) {
+    if (! opts.middleware || opts.middleware != true) {
         // ping im alive sockets
         pingImAliveSocket.connect('tcp://' + module.IP_TO_CURACA + ':' + constants.PORT_REQ_REP_ATAHUALPA_CURACA_COMM);
         pingImAliveSocket.on('message', function(res, message){});
@@ -69,7 +69,7 @@ module.exports = function(opts){
     }
 
     module.ping = function ping () {
-        if (opts.middleware && opts.middleware != true) {
+        if (! opts.middleware || opts.middleware != true) {
             var dataToSendForRequestingWoker = [
                 'PING', //ACTION
                 'noone', //TO
