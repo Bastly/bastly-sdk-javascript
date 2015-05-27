@@ -31,7 +31,7 @@ var HttpClient = function() {
             } 
         }
         anHttpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        anHttpRequest.send(JSON.stringify(data));
+        anHttpRequest.send(JSON.stringify(data)); 
     }
 }
 aClient = new HttpClient();
@@ -56,7 +56,7 @@ window.bastly = module.exports = function(opts){
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, apiKey, callback, type){
+    module.getWorker = function getWorker(channel, from, apiKey, callback){
         console.log('getting worker!');
         var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&from=' + from + '&apiKey=' + apiKey;
         //console.log(url);

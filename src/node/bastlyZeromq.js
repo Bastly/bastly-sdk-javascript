@@ -8,6 +8,7 @@ var pingImAliveSocket = zmq.socket('req');
 var bastly;
 var IP_DEFAULT_ATAHUALPA = 'atahualpa.bastly.com';
 var IP_DEFAULT_CURACA = 'curaca.bastly.com';
+var isMiddleware = false;
 
 module.exports = function(opts){
     var module = {};
@@ -41,6 +42,8 @@ module.exports = function(opts){
         // ping im alive sockets
         pingImAliveSocket.connect('tcp://' + module.IP_TO_CURACA + ':' + constants.PORT_REQ_REP_ATAHUALPA_CURACA_COMM);
         pingImAliveSocket.on('message', function(res, message){});
+    } else {
+         isMiddleware = true;
     }
 
     //INTERFACE
@@ -78,7 +81,7 @@ module.exports = function(opts){
     };
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, apiKey, callback, type){
+    module.getWorker = function getWorker(channel, from, apiKey, callback){
         console.log('getting worker!');
         log.info('get worker', channel);
         var dataToSendForRequestingWoker = [
@@ -86,7 +89,7 @@ module.exports = function(opts){
             channel, //TO
             from, //FROM
             apiKey, //apiKey
-            type || constants.CHASKI_TYPE_ZEROMQ//type
+            isMiddleware ? constants.CHASKI_TYPE_SOCKETIO : constants.CHASKI_TYPE_ZEROMQ//type
         ];
 
         callbacks.push(callback); 
