@@ -176,7 +176,7 @@ module.exports = function(bastlyImplemtentationAux){
 
         bastly.send = bastlyImplementation.send;
 
-        if (opts.middleware && opts.middleware != true) {
+        if (! opts.middleware || opts.middleware != true) {
             bastly.subscribe(bastly.from, opts.callback);
 
             setInterval( function ping () {
