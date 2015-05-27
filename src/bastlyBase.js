@@ -97,7 +97,7 @@ var isAlive = function isAlive(worker){
     } else {
         console.log('worker:', worker.ip, "is dead... RIP");
         closeWorker(worker);
-        bastlyImplementation.replaceWorker(worker);
+        replaceWorker(worker);
         //need to replace all the worker channels
     }
 };
