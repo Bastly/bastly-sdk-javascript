@@ -1,78 +1,70 @@
+/*
+var openOriginal = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function() {
+    arguments[2] = false;
+    return openOriginal.apply(this, arguments);
+};
+*/
+var HttpClient = function() {
+    console.log('helllooo');
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
 
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.onreadystatechange = function() { 
+            console.log(anHttpRequest);
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
+                aCallback(false, anHttpRequest.response);
+            } 
+        };
+        anHttpRequest.send( null );
+    };
+    this.post = function(aUrl, data, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
 
+        anHttpRequest.open( "POST", aUrl, true);            
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
+                //console.log(anHttpRequest);
+                aCallback(false, anHttpRequest.response);
+            } 
+        };
+        anHttpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        anHttpRequest.send(JSON.stringify(data));
+    };
+};
+aClient = new HttpClient();
+
+var request = require('request');
 module.exports = function(opts){
-    var assert = require('chai').assert;
-    var _ = require('lodash');
-    var testChannel = "testChannel";
-    var testApikey = "testApiKey";
-    var testData = {name:"simpleObject"};
-    var bastly;
-    var library;
-    library = opts.library;
 
-    before(function(){
-        if( opts.library === "ZEROMQ"){
-            bastly = require('../node/bastlyZeromq.js');
-            bastly = bastly({
-                from: testChannel,
-                apiKey: testApikey,
-                callback: function (data){
-                    console.log("got a response");
-                }
-            });
-        }
-        if(opts.library === "SOCKETIO"){
-            bastly = require('../browser/javascript/bastlyBrowser.js')({
-                from: testChannel,
-                apiKey: testApikey,
-                callback: function (data){
-                    console.log("got a response");
-                }
-            });
-        }
-    });
-
-    after(function(){
-        bastly.close();
-    });
     describe('Sanity check', function() {
+        this.timeout(15000);
         it('tests work', function (done) {
-            assert.equal('200', '200');
-            done();
+            var url = "http://192.168.1.34:3000";
+            request.get(url, function(error, response, body){
+                console.log(error); 
+                console.log(response); 
+                console.log(body); 
+            });
+            /*
+            aClient.get(url, function (error, response) {
+                
+                console.log('?', response);
+                if (!error) {
+                    console.log('Worker got!', response);
+                    var msg = JSON.parse(response);
+                    var workerIp = msg.message.ip;
+                    callback(workerIp);
+                    done();
+                } else {
+                    console.log('error getting worker');
+                    //console.log(response);
+                }
+            });
+            */
         });
     });
 
-    describe('Can subscribe to a channel', function() {
-        it('requests a worker', function (done) {
-            bastly.subscribe("newChannel", undefined, function(response){
-                done();
-            });
-        });
-    });
-
-    describe('Send messages', function() {
-        it('Can send messages', function (done) {
-            bastly.send(testChannel, testData, function(){
-                done();
-            });
-        });
-    }); 
-
-    describe('Receives messages sended', function() {
-        var receiveTestChannel = "receiveTestChannel";
-        it('Message sended is equal to message received', function (done) {
-            bastly.subscribe(receiveTestChannel, function(data, data2){
-                //must change callback, at this stage many equal messages are send  
-                bastly.on(receiveTestChannel, function(){});
-                assert.equal(true,_.isEqual(data, testData));
-                console.log('calling done-------------------------------------------------');
-                done();
-            }, function(){
-                //subscription is completed, send a message
-                console.log("sending messagesss");
-                bastly.send(receiveTestChannel, testData);
-            });
-        });
-    }); 
-}
+};
 
