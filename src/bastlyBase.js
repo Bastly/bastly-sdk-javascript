@@ -121,7 +121,7 @@ bastly.on = function on(channel, callback){
 
 var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel( channel, channelCallback, callback, error, data ){
     if (!error) {
-        console.log('worker got ' + error + data);
+        console.log('worker got ', data);
         console.log(data.workerIp, channel, channelCallback);
         //registers callbacks to be able to change them afterwards
         registerWorker(data.workerIp, channel, channelCallback, function(){
@@ -181,13 +181,18 @@ module.exports = function(bastlyImplemtentationAux){
         bastly.callbacks[bastly.from] = opts.callback;
 
         bastly.send = bastlyImplementation.send;
+        
 
         if (! opts.middleware || opts.middleware != true) {
+            console.log('starting as a normal client. With subscription');
             bastly.subscribe(bastly.from, opts.callback, opts.opsCallback);
 
             setInterval( function ping () {
                 bastlyImplementation.ping();
             }, 2 * 60 * 1000);
+        } else {
+            bastly.sendMessage = bastlyImplementation.sendMessage;
+            console.log('starting as a middleware. Without subscription');
         }
         
         return bastly;

@@ -1,6 +1,6 @@
 {
   "name": "bastly",
-  "version": "0.0.23",
+  "version": "0.0.29",
   "description": "Bastly nodejs sdk",
   "main": "bastlyZeromq.js",
   "scripts": {

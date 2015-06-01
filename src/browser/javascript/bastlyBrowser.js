@@ -72,11 +72,13 @@ window.bastly = module.exports = function(opts){
         });
     };
 
+    module.sendMessage = function sendMessage () {};
+    
     //INTERFACE
     module.send = function send(to, msg, callback){
         console.log('send', Date.now());
         var url = 'http://' + module.IP_TO_CONNECT + ':8080/api/publishMessage';
-        var data = {to: 'noone', from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) };
+        var data = {to: to, from: bastly.from, apiKey: bastly.apiKey, data:JSON.stringify(msg) };
         aClient.post(url, data, function (error, response) {
                 //ACK callback 
                 if(callback){
