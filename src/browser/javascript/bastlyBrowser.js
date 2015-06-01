@@ -64,9 +64,9 @@ window.bastly = module.exports = function(opts){
             if (!error) {
                 console.log('Worker got!', response);
                 var msg = JSON.parse(response);
-                var workerIp = msg.message.ip;
-                callback(workerIp);
+                if (callback) callback(error, msg);
             } else {
+                if (callback) callback(error, response);
                 console.log('error getting worker: ' + response);
             }
         });
@@ -106,7 +106,7 @@ window.bastly = module.exports = function(opts){
 
     module.ping = function () {
         var url = 'http://' + module.IP_TO_CURACA + ':8080/security/ping';
-        var data = {action: 'PING',to: to, from: bastly.from, apiKey: bastly.apiKey };
+        var data = {action: 'PING',to: bastly.to, from: bastly.from, apiKey: bastly.apiKey };
         aClient.post(url, data, function (error, response) {
                 //ACK callback 
                 if(callback){

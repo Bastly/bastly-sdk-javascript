@@ -25,7 +25,11 @@ module.exports = function(opts){
         log.info('got message', parsedResponse);
         var workerIp = parsedResponse.ip;
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
-        callbacks.shift()({ result.toString(), parsedResponse });
+        if (result.toString == '200'){
+            callbacks.shift()(false, parsedResponse);
+        }else {
+            callbacks.shift()(true, parsedResponse);
+        }
     });
 
     // Send messages sockets

@@ -54,7 +54,7 @@ bastly.callCallback = function callCallback(channel, dataRaw, worker){
 
 //SHARED
 bastly.pingGot = function pingGot(worker){
- bastly.callbacks['ping'](undefined, worker);
+   bastly.callbacks['ping'](undefined, worker);
 };
 
 
@@ -119,21 +119,26 @@ bastly.on = function on(channel, callback){
     } 
 };
 
-var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, callback, workerIp){
-    console.log('worker got');
-    console.log(workerIp, channel, channelCallback);
-    //registers callbacks to be able to change them afterwards
-    registerWorker(workerIp, channel, channelCallback, function(){
-        bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[workerIp], channel);
-        if(callback){
-            callback();
-        }
-    });
+var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel( channel, channelCallback, callback, error, data ){
+    if (!error) {
+        console.log('worker got ' + error + data);
+        console.log(data.workerIp, channel, channelCallback);
+        //registers callbacks to be able to change them afterwards
+        registerWorker(data.workerIp, channel, channelCallback, function(){
+            bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[data.workerIp], channel);
+            if(callback){
+                callback(error, data);
+            }
+        });
+    } else {
+        if (callback )callback(error, data);
+        console.log('coudnt get a worker for an error');
+    }
 };
 
 //SHARED 
 bastly.subscribe = function subscribe(channel, channelCallback, callback){
-    console.log('subscribing');
+    console.log('subscribing to ' + channel);
     //console.log(channel, channelCallback);
     bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
 };
@@ -144,6 +149,7 @@ bastly.getWorker = function getWorker(channel, from, apiKey, callback){
 
 //SHARED
 var replaceWorker = function replaceWorker(worker){
+    console.log('replace worker');
     for(var channelIndex in worker.channels) {
         var channel =  worker.channels[channelIndex];
         bastly.subscribe(channel, bastly.callbacks[channel]);
@@ -177,7 +183,7 @@ module.exports = function(bastlyImplemtentationAux){
         bastly.send = bastlyImplementation.send;
 
         if (! opts.middleware || opts.middleware != true) {
-            bastly.subscribe(bastly.from, opts.callback);
+            bastly.subscribe(bastly.from, opts.callback, opts.opsCallback);
 
             setInterval( function ping () {
                 bastlyImplementation.ping();
