@@ -1,0 +1,16 @@
+{
+  "name": "bastly",
+  "version": "0.1.0",
+  "homepage": "https://github.com/Bastly/sdk-js-browser",
+  "authors": [
+    "gustavo@bastly.com"
+  ],
+  "description": "Bastly Realtime SDK",
+  "main": "bastly.js",
+  "keywords": [
+    "realtime",
+    "bastly",
+    "sdk"
+  ],
+  "license": "MIT"
+}
