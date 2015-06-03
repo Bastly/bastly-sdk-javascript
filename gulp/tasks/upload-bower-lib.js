@@ -6,14 +6,14 @@ var fs = require('fs');
 gulp.task('upload-bower-lib', function() {
  
   // create a new publisher 
-  var publisher = awspublish.create({ Bucket: "www.bastly.com", region: "eu-central-1" });
+  var publisher = awspublish.create({ bucket: "www.bastly.com", region: "eu-central-1" });
 
   // define custom headers 
   var headers = {
      'Cache-Control': 'max-age=315360000, no-transform, public'
    };
 
-  var releaseVersion = JSON.parse(fs.readFileSync('./src/browser/bower.json')).version;
+  var releaseVersion = JSON.parse(fs.readFileSync('./bower.json')).version;
  
   return gulp.src('./dist/browser/*.*')
     // Rename files and specify directories

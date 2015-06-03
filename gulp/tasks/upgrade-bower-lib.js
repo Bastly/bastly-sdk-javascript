@@ -28,13 +28,13 @@ gulp.task('bump-version', function () {
     throw new Error('Bump type argument required but nothing passed');    
   }
 
-  return gulp.src('./src/browser/bower.json')
+  return gulp.src('./bower.json')
     .pipe(bump({type: bumpType}).on('error', gutil.log))
-    .pipe(gulp.dest('./src/browser'));
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('commit-changes', function () {
-  return gulp.src([config.bundleConfigs[0].distributionFolder, './src/browser/bower.json'])
+  return gulp.src([config.bundleConfigs[0].distributionFolder, './bower.json'])
     .pipe(git.add())
     .pipe(git.commit(currentPackage + ' => ' + getBowerJSONversion()));
 });
@@ -55,7 +55,7 @@ gulp.task('create-new-tag', function (cb) {
 
 function getBowerJSONversion() {
     //We parse the json file instead of using require because require caches multiple calls so the version number won't be updated
-    return JSON.parse(fs.readFileSync('./src/browser/bower.json', 'utf8')).version;
+    return JSON.parse(fs.readFileSync('./bower.json')).version;
 };
 
 gulp.task('upgrade-bower-lib', function (cb) {
