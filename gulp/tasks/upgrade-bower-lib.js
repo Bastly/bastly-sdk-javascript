@@ -58,7 +58,7 @@ function getBowerJSONversion() {
     return JSON.parse(fs.readFileSync('./src/browser/bower.json', 'utf8')).version;
 };
 
-gulp.task('release-bower', function (cb) {
+gulp.task('upgrade-bower-lib', function (cb) {
 
   runSequence(
     'build-dist',
@@ -69,8 +69,6 @@ gulp.task('release-bower', function (cb) {
     function (error) {
       if (error) {
         console.log(error.message);
-      } else {
-        console.log('RELEASE FINISHED SUCCESSFULLY');
       }
       cb(error);
     });

@@ -3,7 +3,7 @@ var awspublish = require('gulp-awspublish');
 var rename = require('gulp-rename');
 var fs = require('fs');
  
-gulp.task('publish-bower', ['release-bower'], function() {
+gulp.task('upload-bower-lib', function() {
  
   // create a new publisher 
   var publisher = awspublish.create({ Bucket: "www.bastly.com", region: "eu-central-1" });
