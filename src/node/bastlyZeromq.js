@@ -13,6 +13,9 @@ module.exports = function(opts){
     var acks = [];
     //INTERFACE
     module.IP_TO_CONNECT = IP_DEFAULT_ATAHUALPA;
+    if(typeof opts.ipToConnect !== "undefined"){
+        module.IP_TO_CONNECT = opts.ipToConnect;
+    }
 
     requestChaskiSocket.connect('tcp://' + module.IP_TO_CONNECT + ':' + constants.PORT_REQ_REP_ATAHUALPA_CLIENT_REQUEST_WORKER);
     requestChaskiSocket.on('message', function(result, data){
@@ -36,6 +39,10 @@ module.exports = function(opts){
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
+        worker.socket.close();
+    };
+
+    module.close = function closeConnection(worker){
         sendMessageSocket.close();
         requestChaskiSocket.close();
     };

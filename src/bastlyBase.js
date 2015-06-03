@@ -60,6 +60,7 @@ bastly.pingGot = function pingGot(worker){
 
 //SHARED
 bastly.close = function close(){
+    bastlyImplementation.close();
     for(var w in bastly.workers){
         closeWorker(bastly.workers[w]);
     }

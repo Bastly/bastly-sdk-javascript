@@ -38,6 +38,11 @@ window.bastly = module.exports = function(opts){
 
     //INTERFACE
     module.IP_TO_CONNECT = IP_CONNECTOR_REST;
+    
+    //INTERFACE
+    module.close= function close(){
+        //TODO anything to close?
+    };
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){

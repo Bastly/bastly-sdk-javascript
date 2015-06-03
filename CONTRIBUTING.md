@@ -6,9 +6,11 @@
 #node 
 gulp test-node
 gulp watch-test-node
+//creates a build in /build/node
 gulp production-node 
 
 #test-browser 
 gulp test-browser
 gulp watch-test-browser
+//creates a build in /build/browser
 gulp production-browser 
