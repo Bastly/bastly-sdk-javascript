@@ -1,5 +1,6 @@
 var watchFolderBrowser = "./browser";
 var dest = "./build/browser";
+var dist = "./dist/browser";
 var src = './src/browser';
 
 module.exports = {
@@ -18,6 +19,7 @@ module.exports = {
       entries: src + '/javascript/bastlyBrowser.js',
       watchFolder: watchFolderBrowser,
       productionFolder: dest,
+      distributionFolder: dist,
       outputName: 'bastly.js',
       // list of externally available modules to exclude from the bundle
       external: ['lodash']

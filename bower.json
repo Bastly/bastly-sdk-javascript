@@ -7,10 +7,19 @@
   ],
   "description": "Bastly Realtime SDK",
   "main": "bastly.js",
+  "ignore": [
+    "gulp",
+    "src",
+    "/.*",
+    "CONTRIBUTING.md",
+    "gulpfile.js",
+    "karma.*",
+    "package.json"
+  ],
   "keywords": [
     "realtime",
     "bastly",
     "sdk"
   ],
-  "license": "MIT"
+  "license": "AGPL-3.0"
 }
