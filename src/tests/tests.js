@@ -108,7 +108,6 @@ module.exports = function(opts){
                             apiKey: correctApiKey,
                             callback: function (data){
                                 console.log("got a response " + data);
-                                
                             },
                             opsCallback: function (error, data){
                                 console.log("got a response created bastly" + error + data);

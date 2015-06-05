@@ -113,7 +113,7 @@ module.exports = function(opts){
 
     //INTERFACE
     module.send = function send(to, msg, callback){
-        console.log('send', Date.now(), callback);
+        console.log('send', Date.now());
         var data;
         if(typeof msg === 'object'){
             data = JSON.stringify(msg);
@@ -138,7 +138,7 @@ module.exports = function(opts){
         if (!isMiddleware) {
             console.log("THIS METHOD SHOULD NOT BE USED");
         }
-        console.log('send', Date.now(), callback);
+        console.log('send', Date.now());
         var data;
         if(typeof msg === 'object'){
             data = JSON.stringify(msg);
