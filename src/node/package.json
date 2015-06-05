@@ -1,8 +1,8 @@
 {
   "name": "bastly",
-  "version": "0.0.7",
+  "version": "0.0.32",
   "description": "Bastly nodejs sdk",
-  "main": "index.js",
+  "main": "bastlyZeromq.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive -R xunit test/ > test-reports.xml"
   },

@@ -5,4 +5,5 @@ Function.prototype.bind = Function.prototype.bind || function (thisp) {
         return fn.apply(thisp, arguments);
     };
 };
+require('request');
 require('./tests.js')({library:"SOCKETIO"});

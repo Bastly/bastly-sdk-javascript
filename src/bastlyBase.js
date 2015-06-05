@@ -8,7 +8,7 @@ bastly.callbacks['ping'] = function(data, worker){
 
 //PART OF UTILS
 function toArray(arrayLikeObject) {
-        return [].slice.call(arrayLikeObject);
+    return [].slice.call(arrayLikeObject);
 }
 
 function sub_curry(fn /*, variable number of args */) {
@@ -28,8 +28,8 @@ function curry(fn, length) {
             //console.log(arguments);
             var combined = [fn].concat(toArray(arguments));
             return length - arguments.length > 0 
-                ? curry(sub_curry.apply(this, combined), length - arguments.length)
-                : sub_curry.call(this, combined );
+            ? curry(sub_curry.apply(this, combined), length - arguments.length)
+            : sub_curry.call(this, combined );
         } else {
             // all arguments have been specified, actually call function
             return fn.apply(this, arguments);
@@ -60,6 +60,7 @@ bastly.pingGot = function pingGot(worker){
 
 //SHARED
 bastly.close = function close(){
+    bastlyImplementation.close();
     for(var w in bastly.workers){
         closeWorker(bastly.workers[w]);
     }
@@ -96,8 +97,8 @@ var isAlive = function isAlive(worker){
         worker.isAlive = false;
     } else {
         console.log('worker:', worker.ip, "is dead... RIP");
-        bastlyImplementation.closeWorker(worker);
-        bastlyImplementation.replaceWorker(worker);
+        closeWorker(worker);
+        replaceWorker(worker);
         //need to replace all the worker channels
     }
 };
@@ -119,33 +120,53 @@ bastly.on = function on(channel, callback){
     } 
 };
 
-var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, callback, workerIp){
-    console.log('worker got');
-    console.log(workerIp, channel, channelCallback);
-    //registers callbacks to be able to change them afterwards
-    registerWorker(workerIp, channel, channelCallback, function(){
-        bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[workerIp], channel);
-        if(callback){
-            callback();
-        }
-    });
+var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel( channel, channelCallback, callback, error, data ){
+    if (!error) {
+        console.log('worker got ', data);
+        console.log(data.workerIp, channel, channelCallback);
+        //registers callbacks to be able to change them afterwards
+        registerWorker(data.workerIp, channel, channelCallback, function(){
+            bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[data.workerIp], channel);
+            if(callback){
+                callback(error, data);
+            }
+        });
+    } else {
+        if (callback )callback(error, data);
+        console.log('coudnt get a worker for an error');
+    }
 };
 
 //SHARED 
 bastly.subscribe = function subscribe(channel, channelCallback, callback){
-    console.log('subscribing');
+    var channelToSubscribe = bastly.apiKey + ":" + channel;
+    console.log('subscribing to ' + channelToSubscribe);
     //console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, bastly.from, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
+    bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channelToSubscribe, channelCallback, callback)); 
+};
+
+bastly.getWorker = function getWorker(channel, from, apiKey, callback){
+    bastlyImplementation.getWorker(channel, from, apiKey, callback);
 };
 
 //SHARED
 var replaceWorker = function replaceWorker(worker){
+    console.log('replace worker');
     for(var channelIndex in worker.channels) {
         var channel =  worker.channels[channelIndex];
         bastly.subscribe(channel, bastly.callbacks[channel]);
     } 
 };
 
+function randomString(len, charSet) {
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz,randomPoz+1);
+    }
+    return randomString;
+}
 
 //SHARED
 module.exports = function(bastlyImplemtentationAux){
@@ -154,21 +175,28 @@ module.exports = function(bastlyImplemtentationAux){
     console.log('implementation');
     //console.log(bastlyImplementation);
 
-    return function(opts){
+    return function (opts) {
         console.log('loading sdk');
-        //console.log(opts);
 
-        //TODO missing checks
-        bastly.from = opts.from;
+        bastly.from = opts.from + randomString(8);
         bastly.apiKey = opts.apiKey;
         bastly.callbacks[bastly.from] = opts.callback;
-        if(typeof opts.ipToConnect !== "undefined"){
-            bastlyImplemtentationAux.IP_TO_CONNECT = opts.ipToConnect;
-        }
-        bastly.subscribe(bastly.from, opts.callback);
 
         bastly.send = bastlyImplementation.send;
+        
 
+        if (! opts.middleware || opts.middleware != true) {
+            console.log('starting as a normal client. With subscription');
+            bastly.subscribe(bastly.from, opts.callback, opts.opsCallback);
+
+            setInterval( function ping () {
+                bastlyImplementation.ping();
+            }, 2 * 60 * 1000);
+        } else {
+            bastly.sendMessage = bastlyImplementation.sendMessage;
+            console.log('starting as a middleware. Without subscription');
+        }
+        
         return bastly;
     };
 };
