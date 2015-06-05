@@ -1,0 +1,25 @@
+{
+  "name": "bastly",
+  "version": "0.2.0",
+  "homepage": "https://github.com/Bastly/sdk-js-browser",
+  "authors": [
+    "gustavo@bastly.com"
+  ],
+  "description": "Bastly Realtime SDK",
+  "main": "bastly.js",
+  "ignore": [
+    "gulp",
+    "src",
+    "/.*",
+    "CONTRIBUTING.md",
+    "gulpfile.js",
+    "karma.*",
+    "package.json"
+  ],
+  "keywords": [
+    "realtime",
+    "bastly",
+    "sdk"
+  ],
+  "license": "AGPL-3.0"
+}

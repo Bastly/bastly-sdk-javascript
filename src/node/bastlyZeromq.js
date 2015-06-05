@@ -15,6 +15,7 @@ module.exports = function(opts){
     var callbacks = [];
     var acks = [];
     //INTERFACE
+
     module.IP_TO_CONNECT =  opts.connector || IP_DEFAULT_ATAHUALPA;
     module.IP_TO_CURACA = opts.curaca || IP_DEFAULT_CURACA;
 
@@ -64,6 +65,10 @@ module.exports = function(opts){
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
+        worker.socket.close();
+    };
+
+    module.close = function closeConnection(worker){
         sendMessageSocket.close();
         requestChaskiSocket.close();
         pingImAliveSocket.close();

@@ -40,8 +40,15 @@ window.bastly = module.exports = function(opts){
     var module = {};
 
     //INTERFACE
+
     module.IP_TO_CONNECT = opts.connector || IP_CONNECTOR_REST;
     module.IP_TO_CURACA = opts.curaca || IP_CURACA;
+
+    //INTERFACE
+    module.close= function close(){
+        //TODO anything to close?
+    };
+
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
