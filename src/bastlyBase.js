@@ -138,9 +138,10 @@ var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel
 
 //SHARED 
 bastly.subscribe = function subscribe(channel, channelCallback, callback){
-    console.log('subscribing to ' + channel);
+    var channelToSubscribe = bastly.apiKey + ":" + channel;
+    console.log('subscribing to ' + channelToSubscribe);
     //console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
+    bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channelToSubscribe, channelCallback, callback)); 
 };
 
 bastly.getWorker = function getWorker(channel, from, apiKey, callback){

@@ -38,6 +38,7 @@ module.exports = function(opts){
     sendMessageSocket.on('message', function(result, message){
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
         var ack = acks.shift();
+        var parsedResponse = JSON.parse(message);
         console.log('acks result from sending message ----------->', result.toString(), message.toString());
         if(ack){
             if (result.toString() == '200'){
@@ -77,7 +78,7 @@ module.exports = function(opts){
         log.info('connecting', reveiverUrl);
         bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || newSub.connect(reveiverUrl);
         bastly.workers[workerIp].socket.on('message', function(topic, from,  data){
-            log.info('message got', topic.toString(), data.toString(), data.toString());
+            log.info('message got', topic.toString(), data.toString());
             data = JSON.parse(data);
             bastly.callbacks[topic](data, undefined);
         });

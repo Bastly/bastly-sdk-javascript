@@ -5,7 +5,7 @@ module.exports = function(opts){
     var testApikey = "testApiKey";
     var correctApiKey = "75686ab0-0863-11e5-966c-b1c6dfdca70f";
     var testData = {name:"simpleObject"};
-    var receiveTestChannel = "receiveTestChannel";
+    var receiveTestChannel = "receiveTestChannel2";
     var bastly;
     var library;
     var request = require('request');
@@ -108,27 +108,17 @@ module.exports = function(opts){
                             apiKey: correctApiKey,
                             callback: function (data){
                                 console.log("got a response " + data);
+                                
                             },
                             opsCallback: function (error, data){
                                 console.log("got a response created bastly" + error + data);
                                 assert.equal(false, error);
                                 done();
-                            }                   
+                            }                  
                         });
                     }
         });
     });
-       
-
-    // describe('Can subscribe to a channel', function() {
-    //     it('requests a worker', function (done) {
-    //         bastly.subscribe("newChannel", undefined, function( error, response ){
-    //             console.log(response);
-    //             assert.equal(error, false);
-    //             done();
-    //         });
-    //     });
-    // });
 
     // describe('Send messages', function() {
     //     it('Can send messages', function (done) {
@@ -141,15 +131,15 @@ module.exports = function(opts){
     //     });
     // }); 
 
-    describe('Receives messages sended', function() {
+    describe('Receives messages', function() {
         this.timeout(5000);
-        it('Message sended is equal to message received', function (done) {
+        it('Message sent is equal to message received', function (done) {
 
-            bastly.subscribe(receiveTestChannel, function messageCb (error, data){
+            bastly.subscribe(receiveTestChannel, function messageCb (data){
                 //must change callback, at this stage many equal messages are send  
                 //bastly.on(receiveTestChannel, function(){});
+                console.log('Msg recived-------------------------------------------------', data);
                 assert.equal(true,_.isEqual(data, testData));
-                console.log('calling done-------------------------------------------------');
                 done();
             }, function finishedSubscription (error, data){
                 //subscription is completed, send a message
