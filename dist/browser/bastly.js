@@ -1,11 +1,12 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var io = require('socket.io-client');
 var IP_CONNECTOR_REST = 'connectorrest.bastly.com';
+var IP_CURACA = 'curaca.bastly.com';
 var constants = require('bastly_constants');
 var bastly;
 
 var HttpClient = function() {
-    console.log('helllooo');
+
     this.get = function(aUrl, aCallback) {
         var anHttpRequest = new XMLHttpRequest();
 
@@ -14,7 +15,9 @@ var HttpClient = function() {
             //console.log(anHttpRequest);
             if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200) {
                 aCallback(false, anHttpRequest.response);
-            } 
+            } else if (anHttpRequest.readyState == 4) {
+                aCallback(true, anHttpRequest.response);
+            }
         }
         anHttpRequest.send( null );
     }
@@ -29,7 +32,7 @@ var HttpClient = function() {
             } 
         }
         anHttpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        anHttpRequest.send(JSON.stringify(data));
+        anHttpRequest.send(JSON.stringify(data)); 
     }
 }
 aClient = new HttpClient();
@@ -38,12 +41,15 @@ window.bastly = module.exports = function(opts){
     var module = {};
 
     //INTERFACE
-    module.IP_TO_CONNECT = IP_CONNECTOR_REST;
-    
+
+    module.IP_TO_CONNECT = opts.connector || IP_CONNECTOR_REST;
+    module.IP_TO_CURACA = opts.curaca || IP_CURACA;
+
     //INTERFACE
     module.close= function close(){
         //TODO anything to close?
     };
+
 
     //INTERFACE
     module.closeConnection = function closeConnection(worker){
@@ -53,30 +59,29 @@ window.bastly = module.exports = function(opts){
     //INTERFACE
     module.createConnection = function createConnection(workerIp){
         console.log('creating connection for', workerIp);
-        //console.log(bastly);
-        
         // forceNew is required because a connect/disconnect/connect cycle does not work without it
         bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + workerIp + ':3000', {'forceNew': true });
     }
 
     //INTERFACE
-    module.getWorker = function getWorker(channel, from, callback){
+    module.getWorker = function getWorker(channel, from, apiKey, callback){
         console.log('getting worker!');
-        var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&chaskiType=' + constants.CHASKI_TYPE_SOCKETIO;
+        var url =  'http://' + module.IP_TO_CONNECT + ':8080/api/requestChaski?channel=' + channel + '&from=' + from + '&apiKey=' + apiKey;
         //console.log(url);
         aClient.get(url, function (error, response) {
             if (!error) {
                 console.log('Worker got!', response);
                 var msg = JSON.parse(response);
-                var workerIp = msg.message.ip;
-                callback(workerIp);
+                if (callback) callback(error, msg);
             } else {
-                console.log('error getting worker');
-                //console.log(response);
+                if (callback) callback(error, response);
+                console.log('error getting worker: ' + response);
             }
         });
     };
 
+    module.sendMessage = function sendMessage () {};
+    
     //INTERFACE
     module.send = function send(to, msg, callback){
         console.log('send', Date.now());
@@ -109,9 +114,22 @@ window.bastly = module.exports = function(opts){
         }); 
     };
 
+    module.ping = function () {
+        var url = 'http://' + module.IP_TO_CURACA + ':8080/security/ping';
+        var data = {action: 'PING',to: bastly.to, from: bastly.from, apiKey: bastly.apiKey };
+        aClient.post(url, data, function (error, response) {
+                //ACK callback 
+                if(callback){
+                    callback(error, response);
+                } 
+            }
+        );
+    };
+
     var bastlyBase = require('../../bastlyBase')(module);
 
     bastly =  bastlyBase(opts);
+    
     console.log('returning bastly sdk');
     //console.log(bastly);
     
@@ -7145,7 +7163,7 @@ bastly.callbacks['ping'] = function(data, worker){
 
 //PART OF UTILS
 function toArray(arrayLikeObject) {
-        return [].slice.call(arrayLikeObject);
+    return [].slice.call(arrayLikeObject);
 }
 
 function sub_curry(fn /*, variable number of args */) {
@@ -7165,8 +7183,8 @@ function curry(fn, length) {
             //console.log(arguments);
             var combined = [fn].concat(toArray(arguments));
             return length - arguments.length > 0 
-                ? curry(sub_curry.apply(this, combined), length - arguments.length)
-                : sub_curry.call(this, combined );
+            ? curry(sub_curry.apply(this, combined), length - arguments.length)
+            : sub_curry.call(this, combined );
         } else {
             // all arguments have been specified, actually call function
             return fn.apply(this, arguments);
@@ -7234,8 +7252,8 @@ var isAlive = function isAlive(worker){
         worker.isAlive = false;
     } else {
         console.log('worker:', worker.ip, "is dead... RIP");
-        bastlyImplementation.closeWorker(worker);
-        bastlyImplementation.replaceWorker(worker);
+        closeWorker(worker);
+        replaceWorker(worker);
         //need to replace all the worker channels
     }
 };
@@ -7257,33 +7275,53 @@ bastly.on = function on(channel, callback){
     } 
 };
 
-var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel(channel, channelCallback, callback, workerIp){
-    console.log('worker got');
-    console.log(workerIp, channel, channelCallback);
-    //registers callbacks to be able to change them afterwards
-    registerWorker(workerIp, channel, channelCallback, function(){
-        bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[workerIp], channel);
-        if(callback){
-            callback();
-        }
-    });
+var registerWorkerAndListenToChannel = function registerWorkerAndListenToChannel( channel, channelCallback, callback, error, data ){
+    if (!error) {
+        console.log('worker got ', data);
+        console.log(data.workerIp, channel, channelCallback);
+        //registers callbacks to be able to change them afterwards
+        registerWorker(data.workerIp, channel, channelCallback, function(){
+            bastlyImplementation.workerListenToChannelAndAssociateCallback(bastly.workers[data.workerIp], channel);
+            if(callback){
+                callback(error, data);
+            }
+        });
+    } else {
+        if (callback )callback(error, data);
+        console.log('coudnt get a worker for an error');
+    }
 };
 
 //SHARED 
 bastly.subscribe = function subscribe(channel, channelCallback, callback){
-    console.log('subscribing');
+    var channelToSubscribe = bastly.apiKey + ":" + channel;
+    console.log('subscribing to ' + channelToSubscribe);
     //console.log(channel, channelCallback);
-    bastlyImplementation.getWorker(channel, bastly.from, curry(registerWorkerAndListenToChannel)(channel, channelCallback, callback)); 
+    bastlyImplementation.getWorker(channel, bastly.from, bastly.apiKey, curry(registerWorkerAndListenToChannel)(channelToSubscribe, channelCallback, callback)); 
+};
+
+bastly.getWorker = function getWorker(channel, from, apiKey, callback){
+    bastlyImplementation.getWorker(channel, from, apiKey, callback);
 };
 
 //SHARED
 var replaceWorker = function replaceWorker(worker){
+    console.log('replace worker');
     for(var channelIndex in worker.channels) {
         var channel =  worker.channels[channelIndex];
         bastly.subscribe(channel, bastly.callbacks[channel]);
     } 
 };
 
+function randomString(len, charSet) {
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz,randomPoz+1);
+    }
+    return randomString;
+}
 
 //SHARED
 module.exports = function(bastlyImplemtentationAux){
@@ -7292,21 +7330,28 @@ module.exports = function(bastlyImplemtentationAux){
     console.log('implementation');
     //console.log(bastlyImplementation);
 
-    return function(opts){
+    return function (opts) {
         console.log('loading sdk');
-        //console.log(opts);
 
-        //TODO missing checks
-        bastly.from = opts.from;
+        bastly.from = opts.from + randomString(8);
         bastly.apiKey = opts.apiKey;
         bastly.callbacks[bastly.from] = opts.callback;
-        if(typeof opts.ipToConnect !== "undefined"){
-            bastlyImplemtentationAux.IP_TO_CONNECT = opts.ipToConnect;
-        }
-        bastly.subscribe(bastly.from, opts.callback);
 
         bastly.send = bastlyImplementation.send;
+        
 
+        if (! opts.middleware || opts.middleware != true) {
+            console.log('starting as a normal client. With subscription');
+            bastly.subscribe(bastly.from, opts.callback, opts.opsCallback);
+
+            setInterval( function ping () {
+                bastlyImplementation.ping();
+            }, 2 * 60 * 1000);
+        } else {
+            bastly.sendMessage = bastlyImplementation.sendMessage;
+            console.log('starting as a middleware. Without subscription');
+        }
+        
         return bastly;
     };
 };
