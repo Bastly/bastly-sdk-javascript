@@ -22,7 +22,7 @@ module.exports = {
       distributionFolder: dist,
       outputName: 'bastly.js',
       // list of externally available modules to exclude from the bundle
-      external: ['lodash','request']
+      external: ['lodash']
     }]
   }
 };
