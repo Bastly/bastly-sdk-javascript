@@ -27,9 +27,7 @@ function curry(fn, length) {
             //console.log('arguments');
             //console.log(arguments);
             var combined = [fn].concat(toArray(arguments));
-            return length - arguments.length > 0 
-            ? curry(sub_curry.apply(this, combined), length - arguments.length)
-            : sub_curry.call(this, combined );
+            return length - arguments.length > 0 ? curry(sub_curry.apply(this, combined), length - arguments.length) : sub_curry.call(this, combined );
         } else {
             // all arguments have been specified, actually call function
             return fn.apply(this, arguments);
@@ -87,7 +85,7 @@ var registerWorker = function registerWorker(workerIp, channel, channelCallback,
     if(callback){
         callback();
     }
-}
+};
 
 //SHARED
 var isAlive = function isAlive(worker){
@@ -160,12 +158,12 @@ var replaceWorker = function replaceWorker(worker){
 
 function randomString(len, charSet) {
     charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var randomString = '';
+    var toRet = '';
     for (var i = 0; i < len; i++) {
         var randomPoz = Math.floor(Math.random() * charSet.length);
-        randomString += charSet.substring(randomPoz,randomPoz+1);
+        toRet += charSet.substring(randomPoz, randomPoz+1);
     }
-    return randomString;
+    return toRet;
 }
 
 //SHARED
@@ -185,7 +183,7 @@ module.exports = function(bastlyImplemtentationAux){
         bastly.send = bastlyImplementation.send;
         
 
-        if (! opts.middleware || opts.middleware != true) {
+        if (! opts.middleware || opts.middleware !== true) {
             console.log('starting as a normal client. With subscription');
             bastly.subscribe(bastly.from, opts.callback, opts.opsCallback);
 
