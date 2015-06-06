@@ -27,7 +27,7 @@ module.exports = function(opts){
   
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
         if (result.toString() == '200'){
-            console.log(parsedResponse);
+            log.info(parsedResponse);
             callbacks.shift()(false, parsedResponse);
         }else {
             callbacks.shift()(true, parsedResponse);
@@ -40,17 +40,17 @@ module.exports = function(opts){
         //TODO we must implement some way to understand which response is to each request , since the order does not have to be LILO
         var ack = acks.shift();
         var parsedResponse = JSON.parse(message);
-        console.log('acks result from sending message ----------->', result.toString(), message.toString());
+        log.info('acks result from sending message ----------->', result.toString(), message.toString());
         if(ack){
             if (result.toString() == '200'){
-                console.log('correct ack');
+                log.info('correct ack');
                 ack(false, parsedResponse);
             }else {
-                console.log('error on ack');
+                log.info('error on ack');
                 ack(true, parsedResponse);
             }
         } else {
-            console.log('no cb for ack');
+            log.info('no cb for ack');
         }
     });
 
@@ -58,7 +58,7 @@ module.exports = function(opts){
         // ping im alive sockets
         pingImAliveSocket.connect('tcp://' + module.IP_TO_CURACA + ':' + constants.PORT_REQ_REP_ATAHUALPA_CURACA_COMM);
         pingImAliveSocket.on('message', function(res, message){});
-        console.log('is not middleware');
+        log.info('is not middleware');
     } else {
         isMiddleware = true;
     }
@@ -76,8 +76,8 @@ module.exports = function(opts){
 
     //INTERFACE
     module.createConnection = function createConnection(workerIp){
-        console.log('creating connection for', workerIp);
-        console.log(bastly);
+        log.info('creating connection for', workerIp);
+        log.info(bastly);
         var newSub = zmq.socket('sub'); 
         var reveiverUrl = 'tcp://' + workerIp + ':' + constants.PORT_PUB_SUB_CHASKI_CLIENT_MESSAGES;
         log.info('connecting', reveiverUrl);
@@ -103,7 +103,7 @@ module.exports = function(opts){
 
     //INTERFACE
     module.getWorker = function getWorker(channel, from, apiKey, callback){
-        console.log('getting worker!', channel, from, apiKey);
+        log.info('getting worker!', channel, from, apiKey);
         var dataToSendForRequestingWoker = [
             'subscribe', //ACTION
             channel, //TO
@@ -118,7 +118,7 @@ module.exports = function(opts){
 
     //INTERFACE
     module.send = function send(to, msg, callback){
-        console.log('send', Date.now());
+        log.info('send', Date.now());
         var data;
         if(typeof msg === 'object'){
             data = JSON.stringify(msg);
@@ -141,9 +141,9 @@ module.exports = function(opts){
 
     module.sendMessage = function sendMessage (to, from, apiKey, msg, callback){
         if (!isMiddleware) {
-            console.log("THIS METHOD SHOULD NOT BE USED");
+            log.info("THIS METHOD SHOULD NOT BE USED");
         }
-        console.log('send', Date.now());
+        log.info('send', Date.now());
         var data;
         if(typeof msg === 'object'){
             data = JSON.stringify(msg);
@@ -166,8 +166,7 @@ module.exports = function(opts){
 
     //INTERFACE
     module.workerListenToChannelAndAssociateCallback = function (worker, channel){
-        console.log('workerListenToChannelAndAssociateCallback');
-        //console.log(worker);
+        log.info('workerListenToChannelAndAssociateCallback');
         worker.socket.subscribe(channel);
     };
 
@@ -177,7 +176,7 @@ module.exports = function(opts){
     };
 
     //COMMON
-    console.log('creating bastly');
+    log.info('creating bastly');
     var bastlyBase = require('../bastlyBase')(module);
     bastly =  bastlyBase(opts);
 
