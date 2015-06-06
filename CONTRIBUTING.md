@@ -14,3 +14,7 @@ gulp test-browser
 gulp watch-test-browser
 //creates a build in /build/browser
 gulp production-browser 
+
+
+#publish
+gulp release-bower-lib [--patch/--mayor/--minor]
