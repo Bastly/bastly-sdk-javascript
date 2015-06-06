@@ -17,9 +17,9 @@ var HttpClient = function() {
             } else if (anHttpRequest.readyState == 4) {
                 aCallback(true, anHttpRequest.response);
             }
-        }
+        };
         anHttpRequest.send( null );
-    }
+    };
     this.post = function(aUrl, data, aCallback) {
         var anHttpRequest = new XMLHttpRequest();
 
@@ -29,11 +29,11 @@ var HttpClient = function() {
                 //console.log(anHttpRequest);
                 aCallback(false, anHttpRequest.response);
             } 
-        }
+        };
         anHttpRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         anHttpRequest.send(JSON.stringify(data)); 
-    }
-}
+    };
+};
 aClient = new HttpClient();
 
 window.bastly = module.exports = function(opts){
@@ -60,7 +60,7 @@ window.bastly = module.exports = function(opts){
         console.log('creating connection for', workerIp);
         // forceNew is required because a connect/disconnect/connect cycle does not work without it
         bastly.workers[workerIp].socket = bastly.workers[workerIp].socket || io.connect('http://' + workerIp + ':3000', {'forceNew': true });
-    }
+    };
 
     //INTERFACE
     module.getWorker = function getWorker(channel, from, apiKey, callback){
@@ -113,7 +113,7 @@ window.bastly = module.exports = function(opts){
         }); 
     };
 
-    module.ping = function () {
+    module.ping = function (callback) {
         var url = 'http://' + module.IP_TO_CURACA + ':8080/security/ping';
         var data = {action: 'PING',to: bastly.to, from: bastly.from, apiKey: bastly.apiKey };
         aClient.post(url, data, function (error, response) {
