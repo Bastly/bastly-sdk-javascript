@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>MHD quick hack demo</title>
+<link rel="stylesheet" type="text/css" href="/keyboard.css" media="all">
+
+<script src="/audiosynth.js"></script>
+<script src="/audiosynth.view.js"></script>
+<script src="/bower_components/bastly/dist/browser/bastly.js"></script>
+
+</head>
+
+<body>
+<div class="title">MHD Bastly Musical Keyboard - JS Dynamic Audio Synth</div>
+<div class="keyboard-options">
+Sound
+<select ID="sound">
+    <option value="0" selected>Keyboard</option>
+    <option value="1">Organ</option>
+    <option value="2">Acoustic Guitar</option>
+    <option value="3">EDM, bro!</option>
+</select>
+<div ID="keyboard" class="keyboard-holder"></div>
+<div class="keyboard-options">
+Range [C<span ID="OCTAVE_LOWER">3</span>-B<span ID="OCTAVE_UPPER">5</span>]
+<input type="button" ID="-_OCTAVE" value="-" />
+<input type="button" ID="+_OCTAVE" value="+" /><br />
+</div>
+<script type="text/javascript">
+
+
+</script>
+    <script>
+        function makeid() {
+            var text = "";
+            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            for( var i=0; i < 5; i++ )
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+            return text;
+        }
+        var myId = makeid();
+        var bastly = bastly({
+            from: myId, 
+            //apiKey: "nonoAhoraNo", 
+            apiKey: "60b38670-0d24-11e5-8f7e-095df2532ac5", 
+            //apiKey: "f7392ae0-0c3f-11e5-8f7e-095df2532ac5", 
+            callback: function(data){
+                console.log('gotd', Date.now());
+                console.log(data);
+            }
+        });
+        /* 
+        bastly.subscribe('chan', function(data){
+            console.log('chan got a response'); 
+            console.log(data); 
+        }, function(){
+            console.log('subscription usccessfull');
+        });
+       
+        setInterval(function(){
+            bastly.send('chan', {message:"in a bottle"});
+        }, 20000);
+        */
+        var a = new AudioSynthView(bastly);
+        a.draw();
+    </script>
+</body>
+</html>
+
