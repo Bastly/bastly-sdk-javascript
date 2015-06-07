@@ -1,0 +1,19 @@
+{
+  "name": "keyboard",
+  "version": "0.1.0",
+  "homepage": "https://github.com/Bastly/sdk-js-browser",
+  "authors": [
+    "elchudi <gustavogiudici@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bastly": "~0.2.1"
+  }
+}
