@@ -8,12 +8,19 @@ var bastly = bastly({
                 apiKey: "testApikey",
                 callback: function (data){
                     console.log("got data in channel alice");
+                    console.log(data);
                 }
             });
 });
 
-//any JSON object can be send, up to 20Kb aprox
+//send data, any JSON object up to 20Kb aprox
 bastly.send("bob", {likes:1});
+
+//subscribe to new channel 
+bastly.subscribe("anotherChannel", function(data){
+    console.log("got data in channel anotherChannel");
+    console.log(data);
+});
 ```
 
 ## Installation
