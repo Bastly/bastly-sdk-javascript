@@ -20,16 +20,16 @@ bastly.send("bob", {likes:1});
 
 ### Browser
 1. Download 
-```bash
-$ wget http://www.bastly.com/releases/browser/bastly.js
-```
-or
-```bash
-$ bower install bastly --save
-```
+    ```bash
+    $ wget http://www.bastly.com/releases/browser/bastly.js
+    ```
+    or
+    ```bash
+    $ bower install bastly --save
+    ```
 
-2. Place bastly script right before your `body` close tag
-3. Place your script below the bastly script
+1. Place bastly script right before your `body` close tag
+1. Place your script below the bastly script
 
 ```html
 <script type="text/javascript" src="path/to/bastly/script"></script>
