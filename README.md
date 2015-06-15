@@ -18,13 +18,18 @@ bastly.send("bob", {likes:1});
 
 ## Installation
 
-### Manual
+### Browser
 1. Download 
 ```bash
 $ wget http://www.bastly.com/releases/browser/bastly.js
 ```
-1. Place bastly script right before your `body` close tag
-1. Place your script below the bastly script
+or
+```bash
+$ bower install bastly --save
+```
+
+2. Place bastly script right before your `body` close tag
+3. Place your script below the bastly script
 
 ```html
 <script type="text/javascript" src="path/to/bastly/script"></script>
@@ -39,18 +44,3 @@ $ wget http://www.bastly.com/releases/browser/bastly.js
 $ npm install bastly
 ```
 
-### bower
-
-1. Install bastly and save it as a bower dependency
-```bash
-$ bower install bastly --save
-```
-1. Create a script tag right before your `body` close tag that points to bastly
-1. Place your script below the bastly script
-
-```html
-<script type="text/javascript" src="path/to/bastly/script"></script>
-<script type="text/javascript">
-    // Your code goes here
-</script>
-```
