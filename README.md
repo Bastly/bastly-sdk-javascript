@@ -4,21 +4,37 @@ Bastly offers the hability to create realtime apps. You only need to write a fre
 
 ```js
 var bastly = bastly({
-                from: "testChannel",
+                from: "alice",
                 apiKey: "testApikey",
                 callback: function (data){
-                    console.log("got a response", );
+                    console.log("got data in channel alice");
                 }
             });
 });
 
-bastly.send("ToWhatChannel", {likes:1});
+//any JSON object can be send, up to 20Kb aprox
+bastly.send("bob", {likes:1});
 ```
 
 ## Installation
 
+### Manual
+1. Download 
+```bash
+$ wget http://www.bastly.com/releases/browser/bastly.js
+```
+1. Place bastly script right before your `body` close tag
+1. Place your script below the bastly script
+
+```html
+<script type="text/javascript" src="path/to/bastly/script"></script>
+<script type="text/javascript">
+    // Your code goes here
+</script>
+```
+
 ### npm
-1. Donwload 
+1. Donwload
 ```bash
 $ npm install bastly
 ```
@@ -38,18 +54,3 @@ $ bower install bastly --save
     // Your code goes here
 </script>
 ```
-
-### manually
-
-1. Download [bastly script]() and place it in your project folder
-1. Place bastly script right before your `body` close tag
-1. Place your script below the bastly script
-
-```html
-<script type="text/javascript" src="path/to/bastly/script"></script>
-<script type="text/javascript">
-    // Your code goes here
-</script>
-```
-
-
